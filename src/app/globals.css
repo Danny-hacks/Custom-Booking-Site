@@ -205,3 +205,10 @@ dialog.lightbox::backdrop { background: rgba(0, 0, 0, 0.9); animation: fade 0.25
 dialog.offer-pop[open] { animation: pop-in 0.45s var(--ease-spring) both; }
 dialog.offer-pop::backdrop { background: rgba(15, 34, 51, 0.6); backdrop-filter: blur(3px); animation: fade 0.3s both; }
 @keyframes pop-in { from { opacity: 0; transform: translateY(24px) scale(0.95); } to { opacity: 1; transform: none; } }
+
+/* phone navigation sheet */
+dialog.menu-sheet { max-height: 100dvh; overflow-y: auto; }
+dialog.menu-sheet[open] { animation: sheet-in 0.35s var(--ease-out) both; }
+dialog.menu-sheet::backdrop { background: rgba(15, 34, 51, 0.5); backdrop-filter: blur(2px); animation: fade 0.25s both; }
+html:has(dialog.menu-sheet[open]) { overflow: hidden; }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }

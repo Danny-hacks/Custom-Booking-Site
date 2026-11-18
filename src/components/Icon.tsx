@@ -3,7 +3,7 @@ import {
   MapPin, Bed, Bathtub, Users, Star, ShareNetwork, CaretLeft, CaretRight, Check, X, CalendarBlank, Minus, Plus,
   ShieldCheck, ChatCircleText, CalendarCheck, Mountains, Lock, CreditCard, SignOut, User, Envelope, Phone, Clock,
   ArrowRight, ArrowLeft, Door, SquaresFour, ListBullets, House, Gear, Bell, CurrencyEur, Wallet, ArrowsClockwise,
-  Trash, Warning, Info, Plug, ChartLineUp, Receipt, CaretDown, GridFour, ImagesSquare, Heart, Sun, Tag, SealPercent, Sparkle, Copy, PencilSimple,
+  Trash, Warning, Info, Plug, ChartLineUp, Receipt, CaretDown, GridFour, ImagesSquare, Heart, Sun, Tag, SealPercent, Sparkle, Copy, PencilSimple, List,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
@@ -16,7 +16,7 @@ const map = {
   signout: SignOut, user: User, mail: Envelope, phone: Phone, clock: Clock, arrow: ArrowRight, back: ArrowLeft,
   door: Door, dash: SquaresFour, list: ListBullets, house: House, gear: Gear, bell: Bell, euro: CurrencyEur,
   wallet: Wallet, sync: ArrowsClockwise, trash: Trash, warn: Warning, info: Info, plug: Plug, chart: ChartLineUp,
-  receipt: Receipt, down: CaretDown, grid: GridFour, photos: ImagesSquare, heart: Heart, sun: Sun, tag: Tag, percent: SealPercent, sparkle: Sparkle, copy: Copy, edit: PencilSimple,
+  receipt: Receipt, down: CaretDown, grid: GridFour, photos: ImagesSquare, heart: Heart, sun: Sun, tag: Tag, percent: SealPercent, sparkle: Sparkle, copy: Copy, edit: PencilSimple, menu: List,
 } as const;
 
 export type IconName = keyof typeof map;
