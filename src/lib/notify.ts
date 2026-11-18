@@ -1,26 +1,14 @@
 import "server-only";
 import { db } from "./db";
+import { mailProvider, sendMail } from "./mail";
 
-/** Stores every message in the Outbox (visible in admin) and sends via Resend when configured. */
+/** Stores every message in the Outbox (visible in admin) and emails it when a provider is configured. */
 export async function notify(audience: "owner" | "guest", to: string, subject: string, body: string) {
   const row = await db.notification.create({ data: { audience, to, subject, body } });
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return row;
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: process.env.MAIL_FROM,
-        to,
-        subject,
-        text: body,
-      }),
-    });
-    if (res.ok) await db.notification.update({ where: { id: row.id }, data: { delivered: true } });
-  } catch {
-    /* stays undelivered in outbox, visible to the owner */
-  }
+  if (!mailProvider()) return row;
+  const sent = await sendMail(to, subject, body);
+  if (sent.ok) await db.notification.update({ where: { id: row.id }, data: { delivered: true } });
+  else console.error(`[mail] could not send "${subject}" to ${to}: ${sent.error}`); // stays undelivered in the outbox
   return row;
 }
 

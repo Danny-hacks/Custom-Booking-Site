@@ -6,6 +6,8 @@ import { requireAdmin, destroySession } from "@/lib/session";
 import { cancelBooking, refundOnly } from "@/lib/booking";
 import { channel } from "@/lib/channel";
 import { saveImage } from "@/lib/storage";
+import { sendMail } from "@/lib/mail";
+import { ownerEmail } from "@/lib/notify";
 import { inspectFeed, type FeedReport } from "@/lib/channel/ical";
 import { diffDays, isValidISO } from "@/lib/dates";
 import { AMENITY_CATALOG } from "@/lib/amenities";
@@ -275,4 +277,11 @@ export async function deleteReview(id: string) {
   await db.review.delete({ where: { id } }).catch(() => {});
   revalidatePath("/", "layout");
   redirect("/admin/reviews");
+}
+
+/** Sends a real test message to the owner address so email settings can be checked in one click. */
+export async function sendTestEmail() {
+  await requireAdmin();
+  const r = await sendMail(ownerEmail(), "Test email from your booking site", "If you can read this, the site can send email. New bookings and cancellations will arrive at this address.");
+  redirect(`/admin/outbox?test=${r.ok ? "ok" : "fail"}${r.error ? "&msg=" + encodeURIComponent(r.error) : ""}`);
 }

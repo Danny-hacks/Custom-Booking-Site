@@ -14,7 +14,7 @@ npm run dev                              # http://localhost:3000
 
 ## Without any accounts it already works
 - **Payments**: with `STRIPE_SECRET_KEY` empty, checkout uses a built-in demo pay page. Add the Stripe key + `STRIPE_WEBHOOK_SECRET` (webhook endpoint `/api/webhooks/stripe`, events `checkout.session.completed`, `checkout.session.expired`) to go live. Refunds go through Stripe automatically.
-- **Email**: with `RESEND_API_KEY` empty, every message is stored in Admin → Notifications.
+- **Email**: set `BREVO_API_KEY` (free plan, good for testing) or `RESEND_API_KEY`, plus `MAIL_FROM` (an address verified with that service). With neither, every message is only stored in Admin → Notifications. Admin → Notifications has a "Send a test email" button that shows the provider's exact error if something is wrong.
 - **Airbnb sync (free, iCal)**: Admin → **Calendar sync** walks through it in two steps (paste Airbnb's *export* link; give Airbnb our calendar link) with a "Test this link first" button, status, and a list of what was imported. A scheduled job must call `/api/cron/sync?secret=CRON_SECRET` every 15 min (cron-job.org, or Vercel Cron via the included `vercel.json`, which needs a plan that allows 15-minute crons). Airbnb itself only re-reads OUR link every few hours (its own limit, nothing we can change), so a direct booking is not visible on Airbnb straight away; the owner gets an email asking them to block those dates by hand. For instant two-way sync use Beds24 (below).
 - **Beds24 (instant)**: see "Instant sync with Beds24" below.
 
@@ -60,7 +60,7 @@ Bookings take a per-property database lock on Postgres, so two guests can never 
 ## Deploying to Vercel (test deployment)
 1. **Database.** Vercel dashboard → Storage → add **Neon** (Postgres), region Frankfurt, and connect it to the project. This adds `DATABASE_URL`.
 2. **Image storage.** Storage → add a **Blob** store and connect it (adds `BLOB_READ_WRITE_TOKEN`). Without it, uploading photos in the admin shows an error.
-3. **Settings** (Project → Settings → Environment Variables): `SESSION_SECRET` (long random), `CRON_SECRET` (long random), `SITE_URL` (the deployment address, no trailing slash), `OWNER_EMAIL`, `MAIL_FROM`; optional `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`. See `.env.example`.
+3. **Settings** (Project → Settings → Environment Variables): `SESSION_SECRET` (long random), `CRON_SECRET` (long random), `SITE_URL` (the deployment address, no trailing slash), `OWNER_EMAIL`, `MAIL_FROM`; optional `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BREVO_API_KEY` (or `RESEND_API_KEY`). See `.env.example`.
 4. **Create the tables and the owner login, once**, from this folder, with the database's *direct* (non-pooled) connection string:
    ```
    DATABASE_URL="postgresql://…" ADMIN_EMAIL="you@example.com" ADMIN_PASSWORD="a-strong-password" npm run db:setup
