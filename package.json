@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "node scripts/ensure-server-only-stub.mjs && node scripts/prisma-provider.mjs && prisma generate",
-    "db:setup": "prisma db push && prisma db seed",
+    "db:setup": "node scripts/prisma-provider.mjs && prisma db push && prisma db seed",
     "db:studio": "prisma studio"
   },
   "dependencies": {
