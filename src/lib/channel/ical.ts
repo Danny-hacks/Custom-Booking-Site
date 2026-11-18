@@ -4,7 +4,7 @@ import type { Property } from "@prisma/client";
 import { db } from "../db";
 import { parseIcs, type IcsEvent } from "../ical";
 import { addDays, diffDays, today } from "../dates";
-import type { Channel } from "./index";
+import type { Channel, PullOptions } from "./index";
 
 /** Events we exported ourselves carry this suffix; they must never be imported back. */
 const ours = (uid: string) => uid.endsWith("@lestrebaldie");
@@ -16,9 +16,9 @@ type Feed = { ok: true; events: IcsEvent[] } | { ok: false; error: string };
  * Downloads and validates an iCal feed. A page that is not a calendar (login wall, error page, wrong link)
  * is a failure, never "an empty calendar": otherwise one bad response would cancel every imported booking.
  */
-export async function readFeed(url: string): Promise<Feed> {
+export async function readFeed(url: string, timeoutMs = 15000): Promise<Feed> {
   try {
-    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15000), headers: { Accept: "text/calendar" } });
+    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(timeoutMs), headers: { Accept: "text/calendar" } });
     if (!res.ok) return { ok: false, error: `The link answered with an error (HTTP ${res.status}). Check that it is the Airbnb export link.` };
     const text = await res.text();
     if (!/BEGIN:VCALENDAR/i.test(text)) return { ok: false, error: "The link did not return a calendar. Make sure you copied the Airbnb Export calendar link, not a web page." };
@@ -80,9 +80,9 @@ export const icalChannel: Channel = {
   async pushBooking() {},
   async cancelBooking() {},
 
-  async pull(property: Property) {
+  async pull(property: Property, opts?: PullOptions) {
     if (!property.icalImportUrl) return { imported: 0, cancelled: 0, note: "No Airbnb calendar link saved yet" };
-    const feed = await readFeed(property.icalImportUrl);
+    const feed = await readFeed(property.icalImportUrl, opts?.timeoutMs);
     if (!feed.ok) {
       const note = `Sync failed: ${feed.error}`;
       await db.property.update({ where: { id: property.id }, data: { lastSyncAt: new Date(), lastSyncNote: note } });

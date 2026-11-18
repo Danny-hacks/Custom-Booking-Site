@@ -15,8 +15,8 @@ npm run dev                              # http://localhost:3000
 ## Without any accounts it already works
 - **Payments**: with `STRIPE_SECRET_KEY` empty, checkout uses a built-in demo pay page. Add the Stripe key + `STRIPE_WEBHOOK_SECRET` (webhook endpoint `/api/webhooks/stripe`, events `checkout.session.completed`, `checkout.session.expired`) to go live. Refunds go through Stripe automatically.
 - **Email**: with `RESEND_API_KEY` empty, every message is stored in Admin → Notifications.
-- **Airbnb sync (free, iCal)**: Admin → **Calendar sync** walks through it in two steps (paste Airbnb's *export* link; give Airbnb our calendar link) with a "Test this link first" button, status, and a list of what was imported. A scheduled job must call `/api/cron/sync?secret=CRON_SECRET` every 15 min (cron-job.org, or Vercel Cron via the included `vercel.json`, which needs a plan that allows 15-minute crons). Airbnb itself only re-reads our link every few hours; for instant two-way sync use Beds24 (below).
-- **Beds24 (real-time)**: set `CHANNEL_PROVIDER=beds24`, `BEDS24_TOKEN`, and each property's Beds24 room id. `src/lib/channel/beds24.ts` is written from the public docs and NOT yet verified against a live account.
+- **Airbnb sync (free, iCal)**: Admin → **Calendar sync** walks through it in two steps (paste Airbnb's *export* link; give Airbnb our calendar link) with a "Test this link first" button, status, and a list of what was imported. A scheduled job must call `/api/cron/sync?secret=CRON_SECRET` every 15 min (cron-job.org, or Vercel Cron via the included `vercel.json`, which needs a plan that allows 15-minute crons). Airbnb itself only re-reads OUR link every few hours (its own limit, nothing we can change), so a direct booking is not visible on Airbnb straight away; the owner gets an email asking them to block those dates by hand. For instant two-way sync use Beds24 (below).
+- **Beds24 (instant)**: see "Instant sync with Beds24" below.
 
 ## Offers
 Admin → Offers: percentage or fixed discounts, automatic or with a promo code, optional booking window, stay window and minimum nights. Each offer can show as a top banner, a pop-up (once a week per visitor) and/or cards on the home, Offers and property pages. The best single offer applies at checkout (no stacking) and is stored on the booking. `npx tsx --env-file=.env scripts/seed-offers.mts` adds three samples.
@@ -82,3 +82,18 @@ Nothing in the app needs Vercel. The pieces map one to one:
 | Vercel Cron | Cloud Scheduler | call `/api/cron/sync` with `?secret=` or an `Authorization: Bearer` header; same endpoint |
 | Project env vars | Secret Manager / Cloud Run env | same variable names |
 Stripe, email and the Airbnb calendar links are host-independent. `vercel.json` and the `@vercel/blob` driver are simply unused elsewhere.
+
+## What "instant" means, and what is already done in free mode
+Airbnb has no public booking API: instant connections go through approved partners such as Beds24. With the free calendar links, two things are possible and are built in:
+- **Airbnb → this site, as fresh as possible:** the site re-reads Airbnb's calendar the moment a guest checks a price or starts paying (at most every 30–60 s), plus whenever the scheduled job runs (set it to every 5 minutes).
+- **This site → Airbnb, not instant:** Airbnb decides when to re-read our link (hours). So after every direct booking the owner receives an email: block these dates on Airbnb now. If Airbnb is ever updated too late, the next Airbnb booking on those dates shows up as a clash in Admin → Bookings.
+
+## Instant sync with Beds24
+With Beds24 (a certified Airbnb channel manager) a direct booking closes the dates on Airbnb within minutes and an Airbnb booking reaches us in about a minute through a webhook.
+1. The client creates a Beds24 account and connects the Airbnb listing inside Beds24.
+2. In Beds24: Settings → Marketplace → API → create an invite code with read+write access to bookings (and personal data), and exchange it for a **refresh token** (Beds24 access tokens last 24 h; the site renews them itself from the refresh token).
+3. Site settings: `CHANNEL_PROVIDER=beds24`, `BEDS24_REFRESH_TOKEN`, `BEDS24_WEBHOOK_SECRET` (a long random string); Admin → Calendar sync → Advanced: the Beds24 room id.
+4. In Beds24: Settings → Properties → Access → Booking webhooks (version 2, POST): `https://YOUR-SITE/api/webhooks/beds24?secret=BEDS24_WEBHOOK_SECRET&property=your-property-slug`.
+5. Run `npx tsx --env-file=.env scripts/beds24-test.mts` any time: it tests our side against a pretend Beds24 (token renewal, paging, price, errors, webhook, no double imports).
+
+**Not yet verified:** the connection has never talked to a real Beds24 account (Beds24 has no sandbox), and Beds24's pages do not say how fast a booking sent through their API reaches Airbnb. First real run: use dates far in the future, watch Admin → Calendar sync and the Airbnb calendar, and cancel the test booking afterwards. If a send ever fails, the guest's booking still stands and the owner gets an "ACTION NEEDED: block these dates on Airbnb" email.

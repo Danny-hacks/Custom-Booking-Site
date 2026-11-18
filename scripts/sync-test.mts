@@ -7,6 +7,7 @@ import { db } from "../src/lib/db";
 import { createHold, BookingError } from "../src/lib/booking";
 import { isAvailable } from "../src/lib/availability";
 import { icalChannel, inspectFeed } from "../src/lib/channel/ical";
+import { syncIfStale } from "../src/lib/channel";
 import { buildIcs, type IcsEvent } from "../src/lib/ical";
 import { addDays, today } from "../src/lib/dates";
 
@@ -115,6 +116,15 @@ try {
   feed([]);
   r = await pull();
   ok((await db.booking.count({ where: { propertyId: prop.id, externalUid: { not: null }, status: "confirmed" } })) === 0, "a valid empty calendar clears all imported dates");
+
+  // 10. just-in-time: a guest starting to pay triggers a fresh look at Airbnb when the last one is old
+  feed([ev("late-1@airbnb.com", 90, 93)]);
+  await db.property.update({ where: { id: prop.id }, data: { lastSyncAt: new Date(Date.now() - 300_000) } });
+  await syncIfStale(prop.id, 30);
+  ok(!(await isAvailable(prop.id, d(90), d(93))), "checkout checks Airbnb first: a reservation made minutes ago is caught before the guest pays");
+  feed([]);
+  await syncIfStale(prop.id, 30);
+  ok(!(await isAvailable(prop.id, d(90), d(93))), "…and a recent sync is not repeated");
 } finally {
   await db.booking.deleteMany({ where: { propertyId: prop.id } });
   await db.property.delete({ where: { id: prop.id } });

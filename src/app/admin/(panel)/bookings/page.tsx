@@ -19,12 +19,34 @@ export default async function Bookings({ searchParams }: PageProps<"/admin/booki
   return (
     <div>
       <h1 className="text-3xl">Bookings</h1>
-      <div className="mt-5 flex gap-2" role="tablist">
+      <div className="mt-5 flex flex-wrap gap-2" role="tablist">
         {tabs.map(([k, l]) => (
           <Link key={k} href={`/admin/bookings?f=${k}`} className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${f === k ? "border-ink bg-ink text-white" : "border-line bg-paper hover:border-ink"}`}>{l}</Link>
         ))}
       </div>
-      <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-paper">
+      {/* phones: one card per booking */}
+      <ul className="mt-5 space-y-3 md:hidden">
+        {rows.length === 0 && <li className="rounded-2xl border border-line bg-paper p-6 text-center text-ink-soft">Nothing here yet.</li>}
+        {rows.map((b) => (
+          <li key={b.id}>
+            <Link href={`/admin/bookings/${b.ref}`} className="block rounded-2xl border border-line bg-paper p-4 active:bg-canvas">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{b.guestName}</p>
+                  <p className="text-sm text-ink-soft">{fmtDate(b.checkIn, "en")} → {fmtDate(b.checkOut, "en")}</p>
+                </div>
+                <p className="shrink-0 font-semibold tabular-nums">{b.total ? eur(b.total) : "-"}</p>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <SourceBadge status={b.status} /><SourceBadge source={b.source} />
+                <span className="ml-auto text-xs text-ink-soft">{b.nights} nights · {b.adults + b.children} guests · <span className="font-mono">{b.ref}</span></span>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-5 hidden overflow-x-auto rounded-2xl border border-line bg-paper md:block">
         <table className="w-full min-w-[720px] text-left text-[15px]">
           <thead className="border-b border-line text-xs uppercase tracking-wider text-ink-soft">
             <tr><th className="p-3">Ref</th><th className="p-3">Guest</th><th className="p-3">Stay</th><th className="p-3">Source</th><th className="p-3">Status</th><th className="p-3 text-right">Total</th></tr>

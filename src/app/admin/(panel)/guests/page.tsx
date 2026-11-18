@@ -16,7 +16,21 @@ export default async function Guests() {
     <div>
       <h1 className="text-3xl">Guests</h1>
       <p className="text-ink-soft">{users} registered accounts · direct-booking guests below.</p>
-      <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-paper">
+      {/* phones: one card per guest */}
+      <ul className="mt-5 space-y-3 md:hidden">
+        {[...map.values()].length === 0 && <li className="rounded-2xl border border-line bg-paper p-6 text-center text-ink-soft">No direct guests yet.</li>}
+        {[...map.values()].map((x) => (
+          <li key={x.email} className="rounded-2xl border border-line bg-paper p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0"><p className="truncate font-semibold">{x.name}</p><p className="truncate text-sm text-ink-soft">{x.email}</p></div>
+              <p className="shrink-0 font-semibold">{eur(x.spent)}</p>
+            </div>
+            <p className="mt-2 text-sm text-ink-soft">{x.stays} stay{x.stays === 1 ? "" : "s"} · last {fmtDate(x.last, "en")}</p>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-5 hidden overflow-x-auto rounded-2xl border border-line bg-paper md:block">
         <table className="w-full min-w-[560px] text-left text-[15px]">
           <thead className="border-b border-line text-xs uppercase tracking-wider text-ink-soft"><tr><th className="p-3">Guest</th><th className="p-3">Stays</th><th className="p-3">Last stay</th><th className="p-3 text-right">Spent</th></tr></thead>
           <tbody className="divide-y divide-line">

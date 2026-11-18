@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { CopyField } from "@/components/admin/CopyField";
 import { saveSyncSettings, syncNow, testFeed, connectDemoFeed } from "../../actions";
+import { isBeds24 } from "@/lib/channel";
 
 export const metadata = { title: "Calendar sync" };
 
@@ -30,6 +31,8 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
   const site = process.env.SITE_URL ?? "http://localhost:3000";
   const local = /localhost|127\.0\.0\.1/.test(site);
   const dev = process.env.NODE_ENV !== "production";
+  const beds24 = isBeds24();
+  const first = props[0];
 
   const data = await Promise.all(
     props.map(async (p) => ({
@@ -60,6 +63,42 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
         <div className="space-y-1 text-ink-soft"><p>→ <strong className="text-ink">Step 2</strong>: Airbnb copies our dates →</p><p>← <strong className="text-ink">Step 1</strong>: we copy Airbnb’s dates ←</p></div>
         <div className="rounded-xl bg-tint p-3"><p className="font-bold">This website</p><p className="text-ink-soft">direct bookings</p></div>
       </div>
+
+      {/* how fast is it, and how to make it instant */}
+      <section className="mt-6 rounded-2xl border border-line bg-paper p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-xl">How fast is it?</h2>
+          <span className={`rounded-full px-3 py-1 text-sm font-bold ${beds24 ? "bg-[#dff3e8] text-leaf" : "bg-[#fdf1d6] text-[#7a5200]"}`}>
+            {beds24 ? "Instant mode (Beds24)" : "Free mode (calendar links)"}
+          </span>
+        </div>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[520px] text-left text-[15px]">
+            <thead className="text-xs uppercase tracking-wider text-ink-soft"><tr><th className="py-2 pr-3"></th><th className="py-2 pr-3">Free mode</th><th className="py-2">Instant mode (Beds24)</th></tr></thead>
+            <tbody className="divide-y divide-line align-top">
+              <tr><td className="py-3 pr-3 font-semibold">Airbnb booking → this site</td><td className="py-3 pr-3">Checked the moment a guest starts paying, and every few minutes by the scheduled job</td><td className="py-3">About a minute (Beds24 tells us)</td></tr>
+              <tr><td className="py-3 pr-3 font-semibold">Our booking → Airbnb</td><td className="py-3 pr-3"><strong>Hours.</strong> Airbnb decides when to re-read our link and we cannot hurry it. You get an email asking you to block the dates on Airbnb by hand.</td><td className="py-3">Within minutes (Beds24 closes the dates on Airbnb)</td></tr>
+              <tr><td className="py-3 pr-3 font-semibold">Cost</td><td className="py-3 pr-3">Free</td><td className="py-3">A Beds24 subscription (check their current price)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        {!beds24 && (
+          <details className="mt-4 rounded-xl border border-line p-4">
+            <summary className="cursor-pointer font-semibold">I want instant sync: what do I need?</summary>
+            <ol className="mt-3 list-decimal space-y-2 pl-5 text-[15px] text-ink-soft">
+              <li>A <strong className="text-ink">Beds24</strong> account, with the Airbnb listing connected inside Beds24 (their guided Airbnb connection; Airbnb only allows instant links through approved partners like Beds24).</li>
+              <li>In Beds24: <strong className="text-ink">Settings → Marketplace → API</strong>, create an invite code with read and write access to bookings, then exchange it for a <em>refresh token</em>.</li>
+              <li>In the site settings (Vercel): set <code>CHANNEL_PROVIDER=beds24</code> and <code>BEDS24_REFRESH_TOKEN</code>, then enter the Beds24 room ID under “Advanced” in step 1 below.</li>
+              <li>In Beds24: <strong className="text-ink">Settings → Properties → Access → Booking webhooks</strong> (version 2), and paste the address below.</li>
+            </ol>
+            {first && <p className="mt-3 overflow-x-auto rounded-lg bg-canvas p-3 font-mono text-sm">{site}/api/webhooks/beds24?secret=<span className="text-ink-soft">your BEDS24_WEBHOOK_SECRET</span>&amp;property={first.slug}</p>}
+            <p className="mt-2 text-sm text-ink-soft">Until then, nothing changes: the free mode keeps working. Switch back by removing <code>CHANNEL_PROVIDER</code>.</p>
+          </details>
+        )}
+        {beds24 && first && (
+          <p className="mt-4 text-sm text-ink-soft">Booking webhook address for Beds24: <code className="break-all rounded bg-canvas px-1.5 py-0.5">{site}/api/webhooks/beds24?secret=…&amp;property={first.slug}</code></p>
+        )}
+      </section>
 
       {data.map(({ p, imported, sending }) => {
         const h = health(p);
@@ -129,7 +168,7 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
 
       <section className="mt-8 rounded-2xl border border-line bg-paper p-5">
         <h2 className="text-xl">Run it automatically</h2>
-        <p className="mt-1 text-[15px] text-ink-soft">Step 1 only happens when something asks for it. Set up a scheduled job to call this address every 15 minutes (a free service such as cron-job.org works, or Vercel Cron):</p>
+        <p className="mt-1 text-[15px] text-ink-soft">Step 1 only happens when something asks for it. Set up a scheduled job to call this address every 5 minutes (a free service such as cron-job.org works, or Vercel Cron):</p>
         <p className="mt-3 overflow-x-auto rounded-lg bg-canvas p-3 font-mono text-sm">{site}/api/cron/sync?secret=<span className="text-ink-soft">your CRON_SECRET</span></p>
         <p className="mt-2 text-sm text-ink-soft">The secret is the <code>CRON_SECRET</code> value in the site settings. If this job stops, the status at the top turns to “Out of date”.</p>
       </section>

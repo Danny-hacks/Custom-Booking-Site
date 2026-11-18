@@ -7,7 +7,7 @@ import { view } from "./property";
 import { diffDays, today, eur, fmtDate } from "./dates";
 import { notify, ownerEmail } from "./notify";
 import { refundPayment } from "./payments";
-import { channel } from "./channel";
+import { isBeds24, pushSafely, syncIfStale } from "./channel";
 
 const HOLD_MINUTES = 30;
 const ref = () => "LB" + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -40,6 +40,8 @@ export async function createHold(i: HoldInput) {
   if (i.from < today()) throw new BookingError("Arrival date is in the past");
   if (nights < v.minNights) throw new BookingError(`Minimum stay is ${v.minNights} nights`);
   if (guests < 1 || guests > v.maxGuests) throw new BookingError(`Up to ${v.maxGuests} guests`);
+  // The guest is about to commit to these dates: look at Airbnb's latest bookings first (at most once every 30 s).
+  await syncIfStale(i.propertyId, 30);
   const q = (await priceStay(v, i.from, i.to, i.adults, i.locale === "fr" ? "fr" : "en", i.code)).quote;
 
   // SQLite serialises writes; on Postgres wrap in a serializable tx / use an exclusion constraint.
@@ -108,7 +110,7 @@ export async function confirmBooking(bookingRef: string, paymentIntentId?: strin
     data: { status: "confirmed", holdExpiresAt: null },
     include: { property: true },
   });
-  await channel().pushBooking(done);
+  await pushSafely("push", done);
   const l = done.locale;
   await notify(
     "guest",
@@ -122,7 +124,10 @@ export async function confirmBooking(bookingRef: string, paymentIntentId?: strin
     "owner",
     ownerEmail(),
     `New booking ${done.ref}: ${done.guestName}, ${done.checkIn} → ${done.checkOut}`,
-    `${done.guestName} (${done.guestEmail}) booked ${done.property.name} for ${done.nights} nights, ${done.adults + done.children} guests. Total ${eur(done.total)}.`,
+    `${done.guestName} (${done.guestEmail}) booked ${done.property.name} for ${done.nights} nights, ${done.adults + done.children} guests. Total ${eur(done.total)}.` +
+      (!isBeds24() && done.property.icalImportUrl
+        ? `\n\nAirbnb only sees these dates at its next refresh of your calendar link, which can take a few hours. To close them on Airbnb right now, block ${done.checkIn} to ${done.checkOut} in your Airbnb calendar.`
+        : ""),
   );
   return done;
 }
@@ -159,7 +164,7 @@ export async function cancelBooking(bookingRef: string, o: CancelOpts) {
     data: { status: "cancelled", cancelledAt: new Date(), cancelReason: o.reason ?? `Cancelled by ${o.by}`, holdExpiresAt: null },
     include: { property: true },
   });
-  await channel().cancelBooking(done);
+  await pushSafely("cancel", done);
   const l = done.locale;
   await notify(
     "guest",
