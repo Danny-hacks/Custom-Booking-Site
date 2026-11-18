@@ -1,0 +1,278 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { requireAdmin, destroySession } from "@/lib/session";
+import { cancelBooking, refundOnly } from "@/lib/booking";
+import { channel } from "@/lib/channel";
+import { saveImage } from "@/lib/storage";
+import { inspectFeed, type FeedReport } from "@/lib/channel/ical";
+import { diffDays, isValidISO } from "@/lib/dates";
+import { AMENITY_CATALOG } from "@/lib/amenities";
+import { view, type Photo } from "@/lib/property";
+
+const s = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
+const cents = (f: FormData, k: string) => Math.round((Number(String(f.get(k) ?? "0").replace(",", ".")) || 0) * 100);
+const int = (f: FormData, k: string, d = 0) => Math.round(Number(f.get(k) ?? d)) || d;
+const lines = (x: string) => x.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+
+export async function adminLogout() {
+  await destroySession();
+  redirect("/admin/login");
+}
+
+export async function adminCancel(ref: string, f: FormData) {
+  await requireAdmin();
+  const mode = s(f, "mode");
+  const refundCents = mode === "custom" ? cents(f, "amount") : mode === "none" ? 0 : undefined;
+  await cancelBooking(ref, { by: "admin", refundCents, reason: s(f, "reason") || undefined });
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/bookings/${ref}`);
+}
+
+export async function adminRefund(ref: string, f: FormData) {
+  await requireAdmin();
+  await refundOnly(ref, cents(f, "amount"), s(f, "reason") || undefined);
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/bookings/${ref}`);
+}
+
+export async function adminManualBooking(f: FormData) {
+  await requireAdmin();
+  const from = s(f, "from"), to = s(f, "to");
+  const propertyId = s(f, "propertyId");
+  if (!isValidISO(from) || !isValidISO(to) || to <= from) redirect("/admin/calendar?err=dates");
+  const clash = await db.booking.findFirst({
+    where: { propertyId, status: "confirmed", checkIn: { lt: to }, checkOut: { gt: from } },
+  });
+  if (clash) redirect("/admin/calendar?err=clash");
+  const isBlock = s(f, "kind") === "block";
+  await db.booking.create({
+    data: {
+      ref: (isBlock ? "BL" : "MN") + Math.random().toString(36).slice(2, 7).toUpperCase(),
+      propertyId,
+      guestName: s(f, "name") || (isBlock ? "Owner block" : "Manual booking"),
+      guestEmail: s(f, "email") || "owner@manual.local",
+      checkIn: from,
+      checkOut: to,
+      nights: diffDays(from, to),
+      adults: int(f, "adults", 1),
+      source: isBlock ? "block" : "manual",
+      status: "confirmed",
+      total: cents(f, "total"),
+      notes: s(f, "notes") || null,
+    },
+  });
+  revalidatePath("/admin", "layout");
+  redirect("/admin/calendar");
+}
+
+export async function adminDeleteBlock(ref: string) {
+  await requireAdmin();
+  await db.booking.updateMany({ where: { ref, source: { in: ["block", "manual"] } }, data: { status: "cancelled", cancelledAt: new Date() } });
+  revalidatePath("/admin", "layout");
+  redirect("/admin/calendar");
+}
+
+/** Runs the Airbnb calendar sync for one property right now. */
+export async function syncNow(propertyId: string) {
+  await requireAdmin();
+  const p = await db.property.findUnique({ where: { id: propertyId } });
+  if (p) await channel().pull(p);
+  revalidatePath("/admin", "layout");
+  redirect("/admin/sync?synced=1");
+}
+
+/** Saves the Airbnb link (and optional Beds24 id), then runs a first sync so the result is visible straight away. */
+export async function saveSyncSettings(propertyId: string, f: FormData) {
+  await requireAdmin();
+  const url = s(f, "icalImportUrl");
+  if (url && !/^https?:\/\//i.test(url)) redirect("/admin/sync?err=url");
+  const p = await db.property.update({ where: { id: propertyId }, data: { icalImportUrl: url || null, beds24Id: s(f, "beds24Id") || null } });
+  if (url) await channel().pull(p);
+  revalidatePath("/admin", "layout");
+  redirect("/admin/sync?saved=1");
+}
+
+export type TestState = { ran?: boolean; report?: FeedReport };
+
+/** Dry run: downloads the link and reports what a sync would import. Saves nothing. */
+export async function testFeed(propertyId: string, _prev: TestState, f: FormData): Promise<TestState> {
+  await requireAdmin();
+  const url = s(f, "icalImportUrl");
+  if (!/^https?:\/\//i.test(url)) return { ran: true, report: { ok: false, error: "Paste the Airbnb link first." } };
+  return { ran: true, report: await inspectFeed(url, propertyId) };
+}
+
+/** Development only: points the sync at the built-in pretend Airbnb calendar so it can be tried without Airbnb. */
+export async function connectDemoFeed(propertyId: string) {
+  await requireAdmin();
+  if (process.env.NODE_ENV === "production") redirect("/admin/sync");
+  const base = process.env.SITE_URL ?? "http://localhost:3000";
+  const p = await db.property.update({ where: { id: propertyId }, data: { icalImportUrl: `${base}/api/dev/airbnb-mock` } });
+  await channel().pull(p);
+  revalidatePath("/admin", "layout");
+  redirect("/admin/sync?saved=1");
+}
+
+async function saveUploads(slug: string, files: File[]): Promise<Photo[]> {
+  const out: Photo[] = [];
+  for (const file of files) {
+    const src = await saveImage(slug, file);
+    if (src) out.push({ src, alt_en: "", alt_fr: "" });
+  }
+  return out;
+}
+
+/** Creates or updates a property from the admin form. This is the whole "add a listing" flow. */
+export async function saveProperty(id: string | null, f: FormData) {
+  await requireAdmin();
+  const name = s(f, "name");
+  const slug = (s(f, "slug") || name).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (!name || !slug) redirect(id ? `/admin/properties/${id}?err=name` : "/admin/properties/new?err=name");
+
+  const existing = id ? await db.property.findUnique({ where: { id } }) : null;
+  const ev = existing ? view(existing) : null;
+
+  const removed = new Set(f.getAll("removePhoto").map(String));
+  const kept = (ev?.photos ?? []).filter((p) => !removed.has(p.src));
+  const uploaded = await saveUploads(slug, f.getAll("photos").filter((x): x is File => x instanceof File));
+  const photos = [...kept, ...uploaded].map((p) => ({ ...p, alt_en: p.alt_en || name, alt_fr: p.alt_fr || name }));
+  const cover = s(f, "cover");
+  if (cover) photos.sort((a, b) => (a.src === cover ? -1 : b.src === cover ? 1 : 0));
+
+  const amenities = f.getAll("amenity").map(String).map((k) => AMENITY_CATALOG[k]).filter(Boolean);
+  const mk = (loc: "en" | "fr") => ({
+    tagline: s(f, `tagline_${loc}`),
+    summary: s(f, `summary_${loc}`),
+    story: lines(s(f, `story_${loc}`)),
+    rules: lines(s(f, `rules_${loc}`)),
+    highlights: ev?.content[loc].highlights ?? [],
+  });
+  const seasons = [] as { name: string; from: string; to: string; night: number }[];
+  for (let i = 0; i < 3; i++) {
+    const n = s(f, `season_name_${i}`), from = s(f, `season_from_${i}`), to = s(f, `season_to_${i}`), night = cents(f, `season_night_${i}`);
+    if (n && /^\d\d-\d\d$/.test(from) && /^\d\d-\d\d$/.test(to) && night > 0) seasons.push({ name: n, from, to, night });
+  }
+  const policy = [
+    { daysBefore: int(f, "p1_days", 30), refundPct: int(f, "p1_pct", 100) },
+    { daysBefore: int(f, "p2_days", 14), refundPct: int(f, "p2_pct", 50) },
+    { daysBefore: 0, refundPct: 0 },
+  ];
+
+  const data = {
+    slug, name,
+    status: s(f, "status") === "published" ? "published" : "draft",
+    location: s(f, "location"),
+    maxGuests: int(f, "maxGuests", 2), bedrooms: int(f, "bedrooms", 1), beds: int(f, "beds", 1), bathrooms: int(f, "bathrooms", 1),
+    baseNight: cents(f, "baseNight"), cleaningFee: cents(f, "cleaningFee"), touristTax: cents(f, "touristTax"),
+    minNights: int(f, "minNights", 1),
+    checkInTime: s(f, "checkInTime") || "16:00", checkOutTime: s(f, "checkOutTime") || "10:00",
+    content: JSON.stringify({ en: mk("en"), fr: mk("fr") }),
+    photos: JSON.stringify(photos),
+    amenities: JSON.stringify(amenities.length ? amenities : ev?.amenities ?? []),
+    spaces: JSON.stringify(ev?.spaces ?? []),
+    seasons: JSON.stringify(seasons),
+    policy: JSON.stringify(policy),
+  };
+  const saved = id
+    ? await db.property.update({ where: { id }, data })
+    : await db.property.create({ data });
+  revalidatePath("/", "layout");
+  redirect(`/admin/properties/${saved.id}?saved=1`);
+}
+
+
+/* ───────── Offers ───────── */
+const opt = (f: FormData, k: string) => s(f, k) || null;
+const day = (f: FormData, k: string) => { const v = s(f, k); return isValidISO(v) ? v : null; };
+
+export async function saveOffer(id: string | null, f: FormData) {
+  await requireAdmin();
+  const titleEn = s(f, "titleEn");
+  if (!titleEn) redirect(id ? `/admin/offers/${id}?err=title` : "/admin/offers/new?err=title");
+  const kind = ["percent", "fixed", "none"].includes(s(f, "kind")) ? s(f, "kind") : "percent";
+  const code = s(f, "code").toUpperCase().replace(/\s+/g, "") || null;
+  if (code && (await db.offer.findFirst({ where: { code, NOT: id ? { id } : undefined } }))) redirect(id ? `/admin/offers/${id}?err=code` : "/admin/offers/new?err=code");
+
+  const up = (await saveUploads("offers", f.getAll("image").filter((x): x is File => x instanceof File)))[0];
+  const existing = id ? await db.offer.findUnique({ where: { id } }) : null;
+  const data = {
+    active: f.get("active") === "on",
+    priority: int(f, "priority"),
+    titleEn,
+    titleFr: s(f, "titleFr") || titleEn,
+    bodyEn: s(f, "bodyEn"),
+    bodyFr: s(f, "bodyFr") || s(f, "bodyEn"),
+    badgeEn: s(f, "badgeEn"),
+    badgeFr: s(f, "badgeFr") || s(f, "badgeEn"),
+    kind,
+    value: kind === "percent" ? Math.max(0, Math.min(100, int(f, "value"))) : kind === "fixed" ? cents(f, "value") : 0,
+    code,
+    minNights: Math.max(1, int(f, "minNights", 1)),
+    bookFrom: day(f, "bookFrom"),
+    bookTo: day(f, "bookTo"),
+    stayFrom: day(f, "stayFrom"),
+    stayTo: day(f, "stayTo"),
+    propertyId: opt(f, "propertyId"),
+    imageUrl: up ? up.src : f.get("removeImage") === "on" ? null : (existing?.imageUrl ?? null),
+    showBanner: f.get("showBanner") === "on",
+    showPopup: f.get("showPopup") === "on",
+    showCard: f.get("showCard") === "on",
+  };
+  if (id) await db.offer.update({ where: { id }, data });
+  else await db.offer.create({ data });
+  revalidatePath("/", "layout");
+  redirect("/admin/offers");
+}
+
+export async function toggleOffer(id: string) {
+  await requireAdmin();
+  const o = await db.offer.findUnique({ where: { id } });
+  if (o) await db.offer.update({ where: { id }, data: { active: !o.active } });
+  revalidatePath("/", "layout");
+}
+
+export async function deleteOffer(id: string) {
+  await requireAdmin();
+  await db.offer.delete({ where: { id } }).catch(() => {});
+  revalidatePath("/", "layout");
+  redirect("/admin/offers");
+}
+
+/* ───────── Reviews ───────── */
+export async function saveReview(id: string | null, f: FormData) {
+  await requireAdmin();
+  const name = s(f, "name"), textEn = s(f, "textEn");
+  if (!name || !textEn) redirect(id ? `/admin/reviews/${id}?err=1` : "/admin/reviews/new?err=1");
+  const data = {
+    published: f.get("published") === "on",
+    sample: f.get("sample") === "on",
+    priority: int(f, "priority"),
+    name,
+    origin: s(f, "origin"),
+    stayLabel: s(f, "stayLabel"),
+    rating: Math.max(1, Math.min(5, int(f, "rating", 5))),
+    textEn,
+    textFr: s(f, "textFr"),
+    source: ["airbnb", "direct", "google"].includes(s(f, "source")) ? s(f, "source") : "airbnb",
+  };
+  if (id) await db.review.update({ where: { id }, data });
+  else await db.review.create({ data });
+  revalidatePath("/", "layout");
+  redirect("/admin/reviews");
+}
+
+export async function toggleReview(id: string) {
+  await requireAdmin();
+  const r = await db.review.findUnique({ where: { id } });
+  if (r) await db.review.update({ where: { id }, data: { published: !r.published } });
+  revalidatePath("/", "layout");
+}
+
+export async function deleteReview(id: string) {
+  await requireAdmin();
+  await db.review.delete({ where: { id } }).catch(() => {});
+  revalidatePath("/", "layout");
+  redirect("/admin/reviews");
+}

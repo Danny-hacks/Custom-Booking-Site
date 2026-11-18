@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local data and logs
+/prisma/*.db
+/prisma/*.db-journal
+*.log
+/public/uploads
+
+!.env.example
+
+# raw photo originals (the site uses the optimised copies in public/img/site)
+/public/img/raw

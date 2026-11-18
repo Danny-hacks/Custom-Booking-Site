@@ -1,0 +1,163 @@
+// SQLite for local dev. For production switch provider to "postgresql"
+// and set DATABASE_URL to a Postgres connection string (Neon / Supabase).
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         String    @default("guest") // guest | admin
+  createdAt    DateTime  @default(now())
+  bookings     Booking[]
+}
+
+model Property {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  status        String    @default("published") // draft | published
+  name          String
+  location      String
+  maxGuests     Int
+  bedrooms      Int
+  beds          Int
+  bathrooms     Int
+  baseNight     Int // cents, EUR
+  cleaningFee   Int // cents
+  touristTax    Int // cents per adult per night
+  minNights     Int       @default(2)
+  checkInTime   String    @default("16:00")
+  checkOutTime  String    @default("10:00")
+  currency      String    @default("eur")
+  content       String // JSON { en: {...}, fr: {...} }
+  photos        String // JSON [{ src, alt_en, alt_fr }]
+  amenities     String // JSON [{ icon, en, fr }]
+  spaces        String // JSON cottages / rooms shown as descriptive content
+  seasons       String // JSON [{ name, from:"MM-DD", to:"MM-DD", night }]
+  policy        String // JSON cancellation tiers [{ daysBefore, refundPct }]
+  icalImportUrl String? // Airbnb "export calendar" URL
+  icalToken     String    @default(cuid())
+  beds24Id      String?
+  lastSyncAt    DateTime?
+  lastSyncNote  String?
+  createdAt     DateTime  @default(now())
+  bookings      Booking[]
+}
+
+model Booking {
+  id             String    @id @default(cuid())
+  ref            String    @unique
+  propertyId     String
+  property       Property  @relation(fields: [propertyId], references: [id])
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id])
+  guestName      String
+  guestEmail     String
+  guestPhone     String?
+  adults         Int       @default(1)
+  children       Int       @default(0)
+  pets           Int       @default(0)
+  checkIn        String // YYYY-MM-DD
+  checkOut       String // YYYY-MM-DD
+  nights         Int
+  source         String    @default("direct") // direct | airbnb | manual | block
+  status         String    @default("hold") // hold | confirmed | cancelled
+  accommodation  Int       @default(0)
+  cleaning       Int       @default(0)
+  tax            Int       @default(0)
+  discount       Int       @default(0)
+  offerTitle     String?
+  total          Int       @default(0)
+  notes          String?
+  externalUid    String?   @unique
+  holdExpiresAt  DateTime?
+  cancelledAt    DateTime?
+  cancelReason   String?
+  locale         String    @default("en")
+  createdAt      DateTime  @default(now())
+  payments       Payment[]
+  refunds        Refund[]
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id])
+  amount          Int
+  status          String   @default("pending") // pending | paid | failed
+  provider        String   @default("stripe") // stripe | demo
+  stripeSessionId String?  @unique
+  paymentIntentId String?
+  createdAt       DateTime @default(now())
+}
+
+model Refund {
+  id             String   @id @default(cuid())
+  bookingId      String
+  booking        Booking  @relation(fields: [bookingId], references: [id])
+  amount         Int
+  reason         String?
+  provider       String   @default("stripe")
+  stripeRefundId String?
+  createdAt      DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  audience  String // owner | guest
+  to        String
+  subject   String
+  body      String
+  delivered Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+/// Promotions managed in the admin: shown as banner / popup / cards, and applied to the price.
+model Offer {
+  id          String   @id @default(cuid())
+  active      Boolean  @default(true)
+  priority    Int      @default(0)
+  titleEn     String
+  titleFr     String
+  bodyEn      String   @default("")
+  bodyFr      String   @default("")
+  badgeEn     String   @default("")
+  badgeFr     String   @default("")
+  kind        String   @default("percent") // percent | fixed (cents off accommodation per stay) | none (display only)
+  value       Int      @default(0)
+  code        String?  @unique // empty = applied automatically
+  minNights   Int      @default(1)
+  bookFrom    String? // offer can be booked from (YYYY-MM-DD)
+  bookTo      String? // ...until
+  stayFrom    String? // stay must start on/after
+  stayTo      String? // stay must end on/before
+  propertyId  String? // null = every property
+  imageUrl    String?
+  showBanner  Boolean  @default(false)
+  showPopup   Boolean  @default(false)
+  showCard    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+/// Guest reviews shown on the site. Imported by hand from Airbnb / direct guests (with permission).
+model Review {
+  id        String   @id @default(cuid())
+  published Boolean  @default(true)
+  sample    Boolean  @default(false) // placeholder text, never shown in production
+  priority  Int      @default(0)
+  name      String
+  origin    String   @default("")
+  stayLabel String   @default("") // e.g. "August 2025"
+  rating    Int      @default(5)
+  textEn    String
+  textFr    String   @default("")
+  source    String   @default("airbnb") // airbnb | direct | google
+  createdAt DateTime @default(now())
+}
