@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Figtree, Playfair_Display } from "next/font/google";
 import "../globals.css";
 
-const body = Inter({ variable: "--font-body", subsets: ["latin"] });
-const head = Plus_Jakarta_Sans({ variable: "--font-head", subsets: ["latin"], weight: ["600", "700", "800"] });
+const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
+const head = Playfair_Display({ variable: "--font-head", subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"] });
 
 export const metadata: Metadata = { title: { default: "Admin", template: "%s · Admin" }, robots: { index: false } };
 

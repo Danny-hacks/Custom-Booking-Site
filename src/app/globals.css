@@ -1,22 +1,23 @@
 @import "tailwindcss";
 
-/* Clean, bright surfaces so the warm photography does the talking.
-   Lagoon blue (the pool, the slate shutters) is the one action colour; coral is reserved for deals. */
+/* "Cocon": the owners' own flyer is the brief. Cream paper, espresso-brown lettering, gold line details and a calm,
+   sheltered feel. Chocolate is the one action colour; terracotta (the colour of the bedroom walls) is kept for offers. */
 :root {
-  --canvas: #f4f6f7;
-  --paper: #ffffff;
-  --ink: #0f2233;
-  --ink-soft: #52606d;
-  --line: #dde3e8;
-  --brand: #0a6c86;
-  --brand-deep: #07566c;
-  --tint: #e3f1f5;
-  --sun: #f2a900;
-  --leaf: #16784a;
-  --navy: #0f2a43;
-  --deal: #c8321c;
-  --deal-tint: #fdebe8;
-  --danger: #b3261e;
+  --canvas: #f4ede2;
+  --paper: #fcf8f1;
+  --ink: #3a2819;
+  --ink-soft: #6a5846;
+  --line: #e0d3bf;
+  --brand: #6b4426;
+  --brand-deep: #52341c;
+  --tint: #ebdfcb;
+  --sun: #a8803f;
+  --sun-bright: #d9a441;
+  --leaf: #3f6b3a;
+  --navy: #3a281a;
+  --deal: #a94a2a;
+  --deal-tint: #f6e3d8;
+  --danger: #a8281c;
   --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1);
   --ease-spring: cubic-bezier(0.34, 1.45, 0.5, 1);
 }
@@ -31,32 +32,37 @@
   --color-brand-deep: var(--brand-deep);
   --color-tint: var(--tint);
   --color-sun: var(--sun);
+  --color-sun-bright: var(--sun-bright);
   --color-leaf: var(--leaf);
   --color-navy: var(--navy);
   --color-deal: var(--deal);
   --color-deal-tint: var(--deal-tint);
   --color-danger: var(--danger);
   --font-sans: var(--font-body), system-ui, sans-serif;
-  --font-serif: var(--font-head), system-ui, sans-serif;
+  --font-serif: var(--font-head), Georgia, serif;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--canvas);
+  background-color: var(--canvas);
+  /* a faint paper grain, like the flyer's stock */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .23 0 0 0 0 .16 0 0 0 0 .1 0 0 0 .055 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color: var(--ink);
   font-family: var(--font-body), system-ui, sans-serif;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, .serif {
-  font-family: var(--font-head), system-ui, sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
+  font-family: var(--font-head), Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.15;
   text-wrap: balance;
+  font-variant-numeric: lining-nums; /* Playfair defaults to old-style figures: prices must read 380, not 380 in small caps */
 }
+.italic-serif { font-family: var(--font-head), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: 0; }
 
 :focus-visible {
   outline: 3px solid var(--brand);
@@ -72,13 +78,14 @@ h1, h2, h3, .serif {
   gap: 8px;
   border-radius: 999px;
   background: var(--brand);
-  padding: 0 26px;
-  font-weight: 700;
+  padding: 0 28px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: #fff;
   cursor: pointer;
   transition: background 0.2s, transform 0.25s var(--ease-spring), box-shadow 0.25s;
 }
-.btn:hover:not(:disabled) { background: var(--brand-deep); transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(7, 86, 108, 0.6); }
+.btn:hover:not(:disabled) { background: var(--brand-deep); transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(82, 52, 28, 0.65); }
 .btn:active:not(:disabled) { transform: scale(0.97); box-shadow: none; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost {
@@ -89,12 +96,12 @@ h1, h2, h3, .serif {
   gap: 8px;
   border-radius: 999px;
   border: 1.5px solid var(--ink);
-  padding: 0 20px;
-  font-weight: 700;
+  padding: 0 22px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, transform 0.25s var(--ease-spring), box-shadow 0.25s;
 }
-.btn-ghost:hover { background: var(--paper); transform: translateY(-2px); box-shadow: 0 8px 18px -10px rgba(15, 34, 51, 0.5); }
+.btn-ghost:hover { background: var(--paper); transform: translateY(-2px); box-shadow: 0 8px 18px -10px rgba(58, 40, 26, 0.5); }
 .btn-ghost:active { transform: scale(0.97); }
 .btn > svg:last-child, .btn-ghost > svg:last-child { transition: transform 0.25s var(--ease-out); }
 .btn:hover > svg:last-child, .btn-ghost:hover > svg:last-child { transform: translateX(4px); }
@@ -102,24 +109,32 @@ h1, h2, h3, .serif {
 .field {
   width: 100%;
   min-height: 48px;
-  border-radius: 12px;
-  border: 1px solid #7b8794;
+  border-radius: 14px;
+  border: 1px solid #8a7762;
   background: var(--paper);
   padding: 0 14px;
   font: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.field:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(10, 108, 134, 0.2); outline: none; }
+.field:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(107, 68, 38, 0.22); outline: none; }
 textarea.field { padding-top: 12px; min-height: 96px; }
 .label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; }
 
-/* surfaces */
-.card { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; }
+/* surfaces: soft, generously rounded, like pebbles */
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 26px; }
 .badge-deal {
   display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; background: var(--deal); color: #fff;
   padding: 3px 11px; font-size: 12px; font-weight: 800; letter-spacing: 0.02em;
 }
-.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand); }
+.eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand); }
+.wordmark { font-family: var(--font-head), Georgia, serif; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; }
+
+/* the flyer's divider: a fine gold line either side of a sprig */
+.orn { display: flex; align-items: center; gap: 14px; color: var(--sun); }
+.orn::before, .orn::after { content: ""; height: 1px; flex: 1; max-width: 90px; background: currentColor; opacity: 0.7; }
+
+/* doorway arch: the stone openings of the farmhouse, used sparingly */
+.arch { border-radius: 999px 999px 26px 26px; overflow: hidden; }
 
 /* ───────── Motion ─────────
    One rhythm everywhere: entrances ease out over ~0.7s, hovers settle in ~0.25s with a slight spring,
@@ -151,8 +166,8 @@ textarea.field { padding-top: 12px; min-height: 96px; }
 
 /* card hover: lift + image zoom */
 .lift { transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out); }
-.card { box-shadow: 0 1px 2px rgba(15, 34, 51, 0.04); }
-.lift:hover { transform: translateY(-4px); box-shadow: 0 2px 6px rgba(15, 34, 51, 0.06), 0 16px 36px -10px rgba(15, 34, 51, 0.22); }
+.card { box-shadow: 0 1px 2px rgba(58, 40, 26, 0.04); }
+.lift:hover { transform: translateY(-4px); box-shadow: 0 2px 6px rgba(58, 40, 26, 0.06), 0 16px 36px -10px rgba(58, 40, 26, 0.22); }
 .zoom img { transition: scale 0.9s var(--ease-out); }
 .zoom:hover img { scale: 1.06; }
 
@@ -166,7 +181,7 @@ textarea.field { padding-top: 12px; min-height: 96px; }
 
 /* header: settles into a soft shadow after you scroll; nav links get a drawn underline */
 .site-header { transition: box-shadow 0.3s, background-color 0.3s; }
-html[data-scrolled] .site-header { box-shadow: 0 8px 24px -18px rgba(15, 34, 51, 0.55); background-color: rgba(244, 246, 247, 0.96); }
+html[data-scrolled] .site-header { box-shadow: 0 8px 24px -18px rgba(58, 40, 26, 0.55); background-color: rgba(244, 237, 226, 0.96); }
 .navlink { position: relative; }
 .navlink::after {
   content: ""; position: absolute; left: 12px; right: 12px; bottom: 5px; height: 2px; border-radius: 2px;
@@ -203,12 +218,15 @@ dialog.lightbox::backdrop { background: rgba(0, 0, 0, 0.9); animation: fade 0.25
 
 /* offer pop-up */
 dialog.offer-pop[open] { animation: pop-in 0.45s var(--ease-spring) both; }
-dialog.offer-pop::backdrop { background: rgba(15, 34, 51, 0.6); backdrop-filter: blur(3px); animation: fade 0.3s both; }
+dialog.offer-pop::backdrop { background: rgba(58, 40, 26, 0.6); backdrop-filter: blur(3px); animation: fade 0.3s both; }
 @keyframes pop-in { from { opacity: 0; transform: translateY(24px) scale(0.95); } to { opacity: 1; transform: none; } }
 
 /* phone navigation sheet */
 dialog.menu-sheet { max-height: 100dvh; overflow-y: auto; }
 dialog.menu-sheet[open] { animation: sheet-in 0.35s var(--ease-out) both; }
-dialog.menu-sheet::backdrop { background: rgba(15, 34, 51, 0.5); backdrop-filter: blur(2px); animation: fade 0.25s both; }
+dialog.menu-sheet::backdrop { background: rgba(58, 40, 26, 0.5); backdrop-filter: blur(2px); animation: fade 0.25s both; }
 html:has(dialog.menu-sheet[open]) { overflow: hidden; }
 @keyframes sheet-in { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

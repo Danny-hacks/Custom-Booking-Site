@@ -23,9 +23,9 @@ export function Header({ locale, signedIn, slug, hasOffers }: { locale: Locale; 
           <span className="grid h-9 w-9 place-items-center logo-mark rounded-t-full rounded-b-md bg-brand text-white">
             <Icon name="house" size={20} weight="fill" />
           </span>
-          <span className="serif text-[19px] leading-none">
+          <span className="wordmark text-[18px] leading-none">
             Lestrebaldie
-            <span className="block text-[10px] font-sans font-semibold uppercase tracking-[0.18em] text-ink-soft">Aveyron</span>
+            <span className="mt-1 block font-sans text-[9.5px] font-semibold tracking-[0.3em] text-ink-soft">AVEYRON</span>
           </span>
         </Link>
         <nav aria-label="Main" className="flex items-center gap-1 text-[15px]">

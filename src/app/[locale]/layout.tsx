@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Figtree, Playfair_Display } from "next/font/google";
 import "../globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -14,8 +14,8 @@ import { OfferBanner, OfferPopup } from "@/components/OfferChrome";
 import { liveOffers, offerHref } from "@/lib/offers";
 import { t } from "@/lib/i18n";
 
-const body = Inter({ variable: "--font-body", subsets: ["latin"] });
-const head = Plus_Jakarta_Sans({ variable: "--font-head", subsets: ["latin"], weight: ["600", "700", "800"] });
+const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
+const head = Playfair_Display({ variable: "--font-head", subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"] });
 
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const fr = (await params).locale === "fr";

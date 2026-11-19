@@ -1,31 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { COTTAGE_PHOTOS, PROPERTY_PHOTOS } from "../src/lib/photos";
+import { HIGHLIGHTS, TAGLINE } from "../src/lib/brand";
 
 const db = new PrismaClient();
-const P = (n: string) => `/img/site/${n}.jpg`;
-
-const photos = [
-  ["exterior-garden", "The farmhouse seen from the lawn", "La bastide vue depuis la pelouse"],
-  ["veranda-living", "Glass-walled lounge with wood stove", "Salon vitré avec poêle à bois"],
-  ["great-room", "Beamed great room and dining area", "Grande pièce sous charpente et salle à manger"],
-  ["courtyard-roofs", "Slate roofs and stone terraces", "Toits d'ardoise et terrasses en pierre"],
-  ["bedroom-terracotta", "Terracotta bedroom with carved wooden bed", "Chambre terracotta avec lit en bois sculpté"],
-  ["kitchen-blue", "Blue kitchen with brass tap", "Cuisine bleue et robinet laiton"],
-  ["stone-living", "Stone-walled living room", "Salon aux murs de pierre"],
-  ["petanque", "Pétanque court", "Terrain de pétanque"],
-  ["veranda-lounge", "Lounge with views over the valley", "Salon avec vue sur la vallée"],
-  ["long-table", "Long table for big family dinners", "Longue table pour les repas en famille"],
-  ["bedroom-attic", "Attic bedroom under the beams", "Chambre mansardée sous les poutres"],
-  ["suite-stone", "Stone suite with staircase", "Suite en pierre avec escalier"],
-  ["kitchen-beams", "Kitchen and table under old beams", "Cuisine et table sous les poutres"],
-  ["games-room", "Games room with table football", "Salle de jeux avec baby-foot"],
-  ["bath-double", "Double vanity bathroom", "Salle de bain double vasque"],
-  ["courtyard", "Courtyard and parking", "Cour et parking"],
-  ["house-tree", "Garden with the old tree", "Jardin et vieil arbre"],
-  ["fireplace-room", "Fireplace room", "Pièce avec cheminée"],
-  ["bedroom-oak", "Bedroom with oak bed", "Chambre au lit en chêne"],
-  ["petanque-flowers", "Pétanque court and flowers", "Pétanque et fleurs"],
-].map(([f, en, fr]) => ({ src: P(f), alt_en: en, alt_fr: fr }));
+const photos = PROPERTY_PHOTOS;
 
 const amenities = [
   { icon: "pool", en: "Heated pool", fr: "Piscine chauffée" },
@@ -46,21 +25,21 @@ const spaces = [
   {
     key: "grand",
     sleeps: 10,
-    photo: P("great-room"),
+    photo: COTTAGE_PHOTOS.grand,
     en: { name: "Grand Gîte", blurb: "The big one: four bedrooms, a vast beamed living space and a table that seats the whole family.", facts: ["4 bedrooms", "2 bathrooms", "Living room & lounge", "Full kitchen"] },
     fr: { name: "Grand Gîte", blurb: "Le plus grand : quatre chambres, un vaste séjour sous charpente et une table pour toute la famille.", facts: ["4 chambres", "2 salles de bain", "Salon et séjour", "Cuisine équipée"] },
   },
   {
     key: "panorama",
     sleeps: 6,
-    photo: P("veranda-living"),
+    photo: COTTAGE_PHOTOS.panorama,
     en: { name: "Gîte Panorama", blurb: "Glass walls onto the valley, a wood stove and a private terrace.", facts: ["1 bedroom + mezzanine", "1 bathroom", "Private terrace", "Living room"] },
     fr: { name: "Gîte Panorama", blurb: "Baies vitrées sur la vallée, poêle à bois et terrasse privée.", facts: ["1 chambre + mezzanine", "1 salle de bain", "Terrasse privée", "Salon"] },
   },
   {
     key: "cocon",
     sleeps: 4,
-    photo: P("stone-living"),
+    photo: COTTAGE_PHOTOS.cocon,
     en: { name: "Le Cocon", blurb: "Stone walls and warm light: the snug one, for two couples or a small family.", facts: ["1 bedroom", "1 bathroom", "Kitchen", "Living room"] },
     fr: { name: "Le Cocon", blurb: "Murs de pierre et lumière douce : le plus intime, pour deux couples ou une petite famille.", facts: ["1 chambre", "1 salle de bain", "Cuisine", "Salon"] },
   },
@@ -68,7 +47,7 @@ const spaces = [
 
 const content = {
   en: {
-    tagline: "A stone farmhouse in the Aveyron hills, with a heated pool, for up to 20 guests.",
+    tagline: TAGLINE.en,
     summary: "Three restored cottages around one garden, shared as a single private estate: pool, pétanque, a table for twenty and nobody else.",
     story: [
       "La Bastide de Lestrebaldie is a restored farmhouse above the Aveyron valley, split into three independent cottages that open onto the same garden.",
@@ -76,10 +55,10 @@ const content = {
       "Your hosts live nearby and reply within the hour.",
     ],
     rules: ["Pets are welcome", "Quiet hours from 22:00 to 08:00", "No parties or events without prior agreement", "No smoking inside", "Please treat the pool area with care and supervise children"],
-    highlights: ["Guest Favorite on Airbnb", "Heated pool", "Free parking for 10 cars"],
+    highlights: HIGHLIGHTS.en,
   },
   fr: {
-    tagline: "Une bastide en pierre dans les collines de l'Aveyron, avec piscine chauffée, jusqu'à 20 personnes.",
+    tagline: TAGLINE.fr,
     summary: "Trois gîtes restaurés autour d'un même jardin, loués ensemble comme un domaine privé : piscine, pétanque, table pour vingt et personne d'autre.",
     story: [
       "La Bastide de Lestrebaldie est une ferme restaurée au-dessus de la vallée de l'Aveyron, divisée en trois gîtes indépendants qui donnent sur le même jardin.",
@@ -87,7 +66,7 @@ const content = {
       "Vos hôtes habitent à proximité et répondent en moins d'une heure.",
     ],
     rules: ["Animaux bienvenus", "Calme de 22h à 8h", "Pas de fêtes ni d'événements sans accord préalable", "Non-fumeur à l'intérieur", "Merci de surveiller les enfants autour de la piscine"],
-    highlights: ["Coup de cœur voyageurs Airbnb", "Piscine chauffée", "Parking gratuit pour 10 voitures"],
+    highlights: HIGHLIGHTS.fr,
   },
 };
 

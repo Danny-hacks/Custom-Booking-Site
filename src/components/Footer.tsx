@@ -6,12 +6,12 @@ import { Icon } from "./Icon";
 export function Footer({ locale }: { locale: Locale }) {
   const d = t(locale);
   return (
-    <footer className="mt-24 border-t border-line bg-navy text-[#dbe6ee]">
+    <footer className="mt-24 border-t border-line bg-navy text-[#eadcc6]">
       <div className="mx-auto grid max-w-[1240px] gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <p className="serif text-2xl text-white">La Bastide de Lestrebaldie</p>
-          <p className="mt-2 max-w-sm text-[15px] opacity-80">{d.footer.tag}</p>
-          <p className="mt-4 flex items-center gap-2 text-sm opacity-80"><Icon name="pin" size={18} /> Centrès, Aveyron, France</p>
+          <p className="wordmark text-xl text-white">Lestrebaldie</p>
+          <p className="italic-serif mt-1 text-[#f0dcc0]">{d.footer.tag}</p>
+                    <p className="mt-4 flex items-center gap-2 text-sm opacity-80"><Icon name="pin" size={18} /> Centrès, Aveyron, France</p>
         </div>
         <nav aria-label="Footer" className="grid content-start gap-2 text-[15px]">
           <Link className="hover:underline" href={`/${locale}/offers`}>{d.offers.nav}</Link>

@@ -5,6 +5,8 @@ import { getProperty, fromPrice } from "@/lib/queries";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/property";
 import { Gallery } from "@/components/Gallery";
+import { PhotoTour } from "@/components/PhotoTour";
+import { CAT_LABEL, CAT_ORDER, catOf } from "@/lib/photos";
 import { BookingCard } from "@/components/BookingCard";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
@@ -29,6 +31,7 @@ export default async function PropertyPage({ params, searchParams }: PageProps<"
   const c = p.content[locale];
   const offers = (await liveOffers(locale, p.id)).filter((o) => o.showCard);
   const reviews = await liveReviews(locale);
+  const tour = p.photos.map((x) => ({ src: x.src, alt: locale === "fr" ? x.alt_fr : x.alt_en, cat: catOf(x.src) ?? "other" }));
   const one = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : undefined);
 
   const ld = {
@@ -89,6 +92,13 @@ export default async function PropertyPage({ params, searchParams }: PageProps<"
           <Reveal as="section" className="border-b border-line py-8">
             <h2 className="text-2xl">{d.prop.about}</h2>
             <div className="mt-4 space-y-4 text-[17px] text-ink-soft">{c.story.map((s) => <p key={s}>{s}</p>)}</div>
+          </Reveal>
+
+          <Reveal as="section" className="border-b border-line py-8">
+            <h2 className="text-2xl">{d.prop.tour}</h2>
+            <div className="mt-5">
+              <PhotoTour photos={tour} cats={CAT_ORDER.map((k) => ({ key: k, label: CAT_LABEL[k][locale] }))} labels={{ all: d.prop.tourAll, more: d.prop.tourMore, close: d.card.close }} />
+            </div>
           </Reveal>
 
           <Reveal as="section" className="border-b border-line py-8">
