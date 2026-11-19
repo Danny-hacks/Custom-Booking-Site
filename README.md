@@ -98,9 +98,9 @@ With Beds24 (a certified Airbnb channel manager) a direct booking closes the dat
 
 **Not yet verified:** the connection has never talked to a real Beds24 account (Beds24 has no sandbox), and Beds24's pages do not say how fast a booking sent through their API reaches Airbnb. First real run: use dates far in the future, watch Admin → Calendar sync and the Airbnb calendar, and cancel the test booking afterwards. If a send ever fails, the guest's booking still stands and the owner gets an "ACTION NEEDED: block these dates on Airbnb" email.
 
-## Photos and the "cocon" look
-- The professional photo shoot supplied by the owners lives in `public/img/photos/` (108 web-sized pictures, named `<room-type>-<frame number>.jpg`) and is catalogued, with English and French captions, in `src/lib/photos.ts`. To add one: drop the file in that folder and add one line to the catalogue. Admin → Properties can also upload photos, which then appear under "All" in the photo tour.
+## Photos and the warm look
+- The professional photo shoot supplied by the owners lives in `public/img/photos/` (106 web-sized pictures, named `<room-type>-<frame number>.jpg`) and is catalogued, with English and French captions, in `src/lib/photos.ts`. To add one: drop the file in that folder and add one line to the catalogue. Admin → Properties can also upload photos, which then appear under "All" in the photo tour.
 - `npx tsx scripts/import-photos.mts <folder>` rebuilds the web-sized files from the photographer's originals (resizes to 1800 px, compresses).
-- The site look follows the owners' flyer: cream paper, espresso-brown lettering, gold line details, a serif display font (Playfair Display) with a friendly sans (Figtree). Colours are tokens in `src/app/globals.css`.
+- The site look follows the owners' flyer: cream paper, espresso-brown lettering, gold line details, a single clean sans-serif (Figtree) for headings and text. Colours are tokens in `src/app/globals.css`.
 - **Moving an existing database to the new photos and wording** (the seed does this for fresh databases): `npx tsx --env-file=.env scripts/update-content.mts` locally, or in production `DATABASE_URL="postgres://…" npx tsx scripts/update-content.mts`. It touches only photos, cottage pictures, the tagline and the sample offers' pictures, never bookings, rates or users.
 - The old Airbnb pictures in `public/img/site/` are no longer used by the pages except the two area photos (`area-*.jpg`); delete the rest once production has run the update script.

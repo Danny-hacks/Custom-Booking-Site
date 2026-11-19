@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Figtree, Playfair_Display } from "next/font/google";
+import { Figtree } from "next/font/google";
 import "../globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -15,7 +15,6 @@ import { liveOffers, offerHref } from "@/lib/offers";
 import { t } from "@/lib/i18n";
 
 const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
-const head = Playfair_Display({ variable: "--font-head", subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"] });
 
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const fr = (await params).locale === "fr";
@@ -40,7 +39,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   const d = t(locale).offers;
   const labels = { claim: d.claim, later: d.later, dismiss: d.dismiss, useCode: d.useCode };
   return (
-    <html lang={locale} className={`${body.variable} ${head.variable}`}>
+    <html lang={locale} className={`${body.variable}`}>
       <body className="flex min-h-dvh flex-col max-md:pb-[76px]">
         <noscript><style>{"[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}"}</style></noscript>
         <ScrollState />

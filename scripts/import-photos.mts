@@ -14,8 +14,6 @@ mkdirSync(out, { recursive: true });
 
 // photos that are not part of the numbered "web" series
 const SPECIAL: Record<string, string> = {
-  "pool-001": "Lestrebaldie-piscine__1_.png",
-  "pool-002": "Lestrebaldie-piscine__2_.png",
   "outdoor-200": "18042025-IMG_7385.jpg",
 };
 const files = readdirSync(input);
