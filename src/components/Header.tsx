@@ -19,13 +19,13 @@ export function Header({ locale, signedIn, slug, hasOffers }: { locale: Locale; 
   return (
     <header className="site-header sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between px-5">
-        <Link href={`/${locale}`} className="flex items-center gap-2.5" aria-label="La Bastide de Lestrebaldie">
+        <Link href={`/${locale}`} className="flex min-h-11 items-center gap-2.5" aria-label="La Bastide de Lestrebaldie">
           <span className="grid h-9 w-9 place-items-center logo-mark rounded-t-full rounded-b-md bg-brand text-white">
             <Icon name="house" size={20} weight="fill" />
           </span>
           <span className="wordmark text-[18px] leading-none">
             Lestrebaldie
-            <span className="mt-1 block font-sans text-[9.5px] font-semibold tracking-[0.3em] text-ink-soft">AVEYRON</span>
+            <span className="mt-1 block font-sans text-[11px] font-semibold tracking-[0.3em] text-ink-soft">AVEYRON</span>
           </span>
         </Link>
         <nav aria-label="Main" className="flex items-center gap-1 text-[15px]">

@@ -35,6 +35,11 @@ const body = {
   },
 };
 
+export async function generateMetadata({ params }: PageProps<"/[locale]/legal/[doc]">) {
+  const { locale, doc } = await params;
+  return doc === "terms" || doc === "privacy" ? { title: t(locale as Locale).legal[doc] } : {};
+}
+
 export default async function Legal({ params }: PageProps<"/[locale]/legal/[doc]">) {
   const { locale: l, doc } = await params;
   const locale = l as Locale;

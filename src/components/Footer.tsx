@@ -14,16 +14,16 @@ export function Footer({ locale }: { locale: Locale }) {
           <p className="italic-serif mt-1 text-[#f0dcc0]">{d.footer.tag}</p>
                     <p className="mt-4 flex items-center gap-2 text-sm opacity-80"><Icon name="pin" size={18} /> Centrès, Aveyron, France</p>
         </div>
-        <nav aria-label="Footer" className="grid content-start gap-2 text-[15px]">
-          <Link className="hover:underline" href={`/${locale}/offers`}>{d.offers.nav}</Link>
-          <Link className="hover:underline" href={`/${locale}/area`}>{d.nav.area}</Link>
-          <Link className="hover:underline" href={`/${locale}/faq`}>{d.nav.faq}</Link>
-          <Link className="hover:underline" href={`/${locale}/contact`}>{d.nav.contact}</Link>
-          <Link className="hover:underline" href={`/${locale}/account`}>{d.nav.account}</Link>
+        <nav aria-label="Footer" className="grid content-start text-[15px]">
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/offers`}>{d.offers.nav}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/area`}>{d.nav.area}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/faq`}>{d.nav.faq}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/contact`}>{d.nav.contact}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/account`}>{d.nav.account}</Link>
         </nav>
-        <nav aria-label="Legal" className="grid content-start gap-2 text-[15px]">
-          <Link className="hover:underline" href={`/${locale}/legal/terms`}>{d.footer.terms}</Link>
-          <Link className="hover:underline" href={`/${locale}/legal/privacy`}>{d.footer.privacy}</Link>
+        <nav aria-label="Legal" className="grid content-start text-[15px]">
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/legal/terms`}>{d.footer.terms}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/legal/privacy`}>{d.footer.privacy}</Link>
         </nav>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs opacity-70">

@@ -1,7 +1,7 @@
 import type { Locale } from "./property";
 
 const en = {
-  nav: { stay: "The estate", area: "The area", faq: "FAQ", contact: "Contact", account: "Account", login: "Log in", book: "Book", logout: "Log out" },
+  nav: { skip: "Skip to content", stay: "The estate", area: "The area", faq: "FAQ", contact: "Contact", account: "Account", login: "Log in", book: "Book", logout: "Log out" },
   offers: { nav: "Offers", title: "Offers & deals", lead: "Book direct and save. Offers apply automatically, or with a code where shown.", code: "Promo code", apply: "Apply", validUntil: "Book by", stayBetween: "Stay", minNights: "nights min.", useCode: "Use code", view: "See dates", copy: "Copy code", copied: "Copied", none: "No offers right now. Check back soon.", claim: "Claim this offer", later: "Maybe later", forStay: "Deals for your stay", save: "You save", dismiss: "Dismiss", invalid: "That code does not apply to these dates.", applied: "Offer applied", all: "See all offers" },
   search: { arrival: "Arrival", departure: "Departure", guests: "Guests", addDates: "Add date", go: "Check dates", guestsN: "guests", guest1: "guest" },
   home: {
@@ -41,6 +41,7 @@ const en = {
     detailsLead: "A lamp by the bed, a teapot on the old oak table, a sewing machine that has seen a century. Slow down and look around.",
   },
   prop: {
+    glance: "The estate at a glance",
     share: "Share",
     showAll: "Show all photos",
     tour: "Photo tour",
@@ -168,6 +169,7 @@ const en = {
     ],
   },
   contact: { title: "Talk to your hosts", lead: "We usually reply within the hour.", email: "Email", send: "Write to us" },
+  notFound: { title: "Page not found", text: "This page does not exist or has moved.", home: "Back to the home page" },
   footer: { tag: "Your exceptional escape in Aveyron.", legal: "Legal notice", terms: "Terms of stay", privacy: "Privacy", rights: "All rights reserved.", photos: "Photos:", areaPhotos: "Area photo credits" },
   legal: { terms: "Terms of stay", privacy: "Privacy policy", draft: "Draft text. To be reviewed and completed with the owner's legal details (SIRET, address, VAT) before launch." },
   common: { back: "Back", loading: "Loading…" },
@@ -176,7 +178,7 @@ const en = {
 type Dict = typeof en;
 
 const fr: Dict = {
-  nav: { stay: "Le domaine", area: "La région", faq: "FAQ", contact: "Contact", account: "Compte", login: "Connexion", book: "Réserver", logout: "Déconnexion" },
+  nav: { skip: "Aller au contenu", stay: "Le domaine", area: "La région", faq: "FAQ", contact: "Contact", account: "Compte", login: "Connexion", book: "Réserver", logout: "Déconnexion" },
   offers: { nav: "Offres", title: "Offres & bons plans", lead: "Réservez en direct et économisez. Les offres s’appliquent automatiquement, ou avec un code si indiqué.", code: "Code promo", apply: "Appliquer", validUntil: "À réserver avant le", stayBetween: "Séjour", minNights: "nuits min.", useCode: "Code", view: "Voir les dates", copy: "Copier le code", copied: "Copié", none: "Aucune offre pour le moment. Revenez bientôt.", claim: "Profiter de l’offre", later: "Plus tard", forStay: "Offres pour votre séjour", save: "Vous économisez", dismiss: "Fermer", invalid: "Ce code ne s’applique pas à ces dates.", applied: "Offre appliquée", all: "Toutes les offres" },
   search: { arrival: "Arrivée", departure: "Départ", guests: "Voyageurs", addDates: "Ajouter", go: "Voir les dates", guestsN: "voyageurs", guest1: "voyageur" },
   home: {
@@ -216,6 +218,7 @@ const fr: Dict = {
     detailsLead: "Une lampe au chevet, une théière sur la vieille table en chêne, une machine à coudre qui a un siècle. Prenez le temps de regarder.",
   },
   prop: {
+    glance: "Le domaine en un coup d’œil",
     share: "Partager",
     showAll: "Voir toutes les photos",
     tour: "Visite en photos",
@@ -343,6 +346,7 @@ const fr: Dict = {
     ],
   },
   contact: { title: "Parlez à vos hôtes", lead: "Nous répondons généralement en moins d'une heure.", email: "E-mail", send: "Écrivez-nous" },
+  notFound: { title: "Page introuvable", text: "Cette page n’existe pas ou a été déplacée.", home: "Retour à l’accueil" },
   footer: { tag: "Votre parenthèse d'exception en Aveyron.", legal: "Mentions légales", terms: "Conditions de séjour", privacy: "Confidentialité", rights: "Tous droits réservés.", photos: "Photographies :", areaPhotos: "Crédits photos de la région" },
   legal: { terms: "Conditions de séjour", privacy: "Politique de confidentialité", draft: "Texte provisoire, à relire et compléter avec les informations légales du propriétaire (SIRET, adresse, TVA) avant le lancement." },
   common: { back: "Retour", loading: "Chargement…" },

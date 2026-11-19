@@ -32,14 +32,14 @@ export function OfferBanner({ offers, labels }: { offers: PublicOffer[]; labels:
   const o = offers[i % offers.length];
   return (
     <div className="bg-navy text-white">
-      <div className="mx-auto flex min-h-11 max-w-[1240px] items-center justify-center gap-3 px-5 py-1.5 text-sm">
-        <Link key={o.id} href={o.href} className="quote-in group flex min-w-0 items-center gap-2.5 font-medium">
+      <div className="mx-auto flex min-h-11 max-w-[1240px] items-center justify-center gap-2 px-5 text-sm">
+        <Link key={o.id} href={o.href} className="quote-in group flex min-h-11 min-w-0 items-center gap-2.5 font-medium">
           <span className="badge-deal shrink-0"><Icon name="tag" size={12} weight="fill" /> {o.badge || "Deal"}</span>
           <span className="truncate">{o.title}</span>
           {o.code && <span className="hidden shrink-0 rounded border border-white/40 px-1.5 text-xs font-bold tracking-wider sm:inline">{labels.useCode} {o.code}</span>}
           <Icon name="arrow" size={16} className="hidden shrink-0 transition-transform group-hover:translate-x-1 sm:block" />
         </Link>
-        <button type="button" onClick={close} aria-label={labels.dismiss} className="ml-1 grid h-8 w-8 shrink-0 place-items-center rounded-full hover:bg-white/15">
+        <button type="button" onClick={close} aria-label={labels.dismiss} className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-white/15">
           <Icon name="x" size={16} />
         </button>
       </div>

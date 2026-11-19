@@ -35,7 +35,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       {/* HERO */}
       <section className="mx-auto max-w-[1240px] px-5 pt-5">
         <div className="relative isolate min-h-[560px] overflow-hidden rounded-[36px] bg-navy sm:min-h-[640px]">
-          <Image src={hero.src} alt={alt(hero)} fill priority sizes="1240px" className="-z-10 object-cover" />
+          <Image src={hero.src} alt={alt(hero)} fill priority sizes="1240px" className="hero-zoom -z-10 object-cover" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy/70 via-navy/25 to-transparent" />
           <div className="flex min-h-[560px] max-w-[720px] flex-col justify-end px-7 pb-28 pt-12 sm:min-h-[640px] sm:px-12">
             <p className="rise inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-[13px] font-semibold text-white backdrop-blur">

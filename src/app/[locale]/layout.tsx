@@ -19,6 +19,9 @@ const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const fr = (await params).locale === "fr";
   return {
+    metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
+    openGraph: { type: "website", siteName: "La Bastide de Lestrebaldie", locale: fr ? "fr_FR" : "en_GB", images: [{ url: "/img/photos/outdoor-102.jpg", width: 1800, height: 1197, alt: "La Bastide de Lestrebaldie" }] },
+    twitter: { card: "summary_large_image" },
     title: { default: "La Bastide de Lestrebaldie · Gîtes en Aveyron", template: "%s · La Bastide de Lestrebaldie" },
     description: fr
       ? "Une ferme en pierre restaurée avec trois gîtes et une piscine chauffée en Aveyron. Jusqu’à 20 personnes. Réservez en direct."
@@ -42,10 +45,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html lang={locale} className={`${body.variable}`}>
       <body className="flex min-h-dvh flex-col max-md:pb-[76px]">
         <noscript><style>{"[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}"}</style></noscript>
+        <a href="#content" className="skip-link">{t(locale).nav.skip}</a>
         <ScrollState />
         <OfferBanner offers={offers.filter((o) => o.showBanner).map(pub)} labels={labels} />
         <Header locale={locale} signedIn={!!user} slug={slug} hasOffers={offers.some((o) => o.showCard)} />
-        <div className="flex-1">{children}</div>
+        <div id="content" tabIndex={-1} className="flex-1 outline-none">{children}</div>
         <Footer locale={locale} />
         {prop && <MobileCta href={`/${locale}/properties/${slug}#book`} from={t(locale).card.from} price={`${eur(fromPrice(prop), locale)} ${t(locale).card.perNight}`} label={t(locale).card.reserve} />}
         <OfferPopup offers={offers.filter((o) => o.showPopup).map(pub)} labels={labels} />

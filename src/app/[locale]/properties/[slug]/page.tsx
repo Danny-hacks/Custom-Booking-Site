@@ -18,7 +18,7 @@ import { OfferCard } from "@/components/OfferCard";
 export async function generateMetadata({ params }: PageProps<"/[locale]/properties/[slug]">): Promise<Metadata> {
   const { locale, slug } = await params;
   const p = await getProperty(slug);
-  return p ? { title: p.name, description: p.content[locale as Locale].summary } : {};
+  return p ? { title: locale === "fr" ? "Le domaine" : "The estate", description: p.content[locale as Locale].summary } : {};
 }
 
 export default async function PropertyPage({ params, searchParams }: PageProps<"/[locale]/properties/[slug]">) {
@@ -65,17 +65,8 @@ export default async function PropertyPage({ params, searchParams }: PageProps<"
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_400px]">
         <div className="min-w-0">
-          {offers.length > 0 && (
-            <Reveal as="section" className="border-b border-line pb-8">
-              <h2 className="text-2xl">{t(locale).offers.forStay}</h2>
-              <ul className="mt-5 grid gap-5 sm:grid-cols-2">
-                {offers.slice(0, 2).map((o) => <li key={o.id}><OfferCard o={o} locale={locale} href={offerHref(o, locale, p.slug)} /></li>)}
-              </ul>
-            </Reveal>
-          )}
-
           <Reveal as="section" className="border-b border-line py-8">
-            <h2 className="text-2xl">{p.location}</h2>
+            <h2 className="text-2xl">{d.prop.glance}</h2>
             <p className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-ink-soft">
               <span>{d.prop.upTo} {p.maxGuests} {d.search.guestsN}</span>
               <span>{p.bedrooms} {d.prop.bedrooms}</span>
@@ -93,6 +84,15 @@ export default async function PropertyPage({ params, searchParams }: PageProps<"
             <h2 className="text-2xl">{d.prop.about}</h2>
             <div className="mt-4 space-y-4 text-[17px] text-ink-soft">{c.story.map((s) => <p key={s}>{s}</p>)}</div>
           </Reveal>
+
+          {offers.length > 0 && (
+            <Reveal as="section" className="border-b border-line py-8">
+              <h2 className="text-2xl">{t(locale).offers.forStay}</h2>
+              <ul className="mt-5 grid gap-5 sm:grid-cols-2">
+                {offers.slice(0, 2).map((o) => <li key={o.id}><OfferCard o={o} locale={locale} href={offerHref(o, locale, p.slug)} /></li>)}
+              </ul>
+            </Reveal>
+          )}
 
           <Reveal as="section" className="border-b border-line py-8">
             <h2 className="text-2xl">{d.prop.tour}</h2>

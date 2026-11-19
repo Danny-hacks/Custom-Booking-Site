@@ -137,8 +137,8 @@ export function BookingCard({
       <button
         type="button"
         className="btn mt-4 w-full"
-        disabled={!quote || busy}
-        onClick={() => router.push(href)}
+        disabled={busy}
+        onClick={() => (quote ? router.push(href) : setOpen("dates"))}
       >
         {busy ? d.card.checking : ready && quote ? d.card.reserve : d.card.pickDates}
       </button>
