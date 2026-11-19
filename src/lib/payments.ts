@@ -2,6 +2,7 @@ import "server-only";
 import Stripe from "stripe";
 import type { Booking, Property } from "@prisma/client";
 import { db } from "./db";
+import { siteBase } from "./site";
 
 let _stripe: Stripe | null = null;
 export const stripeEnabled = () => !!process.env.STRIPE_SECRET_KEY;
@@ -10,7 +11,7 @@ export function stripe() {
   return _stripe;
 }
 
-export const siteUrl = () => process.env.SITE_URL ?? "http://localhost:3000";
+export const siteUrl = () => siteBase();
 
 /** Returns the URL to send the guest to. Stripe Checkout when configured, otherwise the built-in demo page. */
 export async function startPayment(b: Booking, p: Property, locale: string) {

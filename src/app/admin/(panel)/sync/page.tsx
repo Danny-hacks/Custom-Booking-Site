@@ -1,3 +1,4 @@
+import { siteBase } from "@/lib/site";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { fmtDate, today } from "@/lib/dates";
@@ -28,7 +29,7 @@ function health(p: { icalImportUrl: string | null; lastSyncAt: Date | null; last
 export default async function SyncPage({ searchParams }: PageProps<"/admin/sync">) {
   const sp = await searchParams;
   const props = await db.property.findMany({ orderBy: { createdAt: "asc" } });
-  const site = process.env.SITE_URL ?? "http://localhost:3000";
+  const site = siteBase();
   const local = /localhost|127\.0\.0\.1/.test(site);
   const dev = process.env.NODE_ENV !== "production";
   const beds24 = isBeds24();

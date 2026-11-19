@@ -1,4 +1,5 @@
 "use server";
+import { siteBase } from "@/lib/site";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
@@ -110,7 +111,7 @@ export async function testFeed(propertyId: string, _prev: TestState, f: FormData
 export async function connectDemoFeed(propertyId: string) {
   await requireAdmin();
   if (process.env.NODE_ENV === "production") redirect("/admin/sync");
-  const base = process.env.SITE_URL ?? "http://localhost:3000";
+  const base = siteBase();
   const p = await db.property.update({ where: { id: propertyId }, data: { icalImportUrl: `${base}/api/dev/airbnb-mock` } });
   await channel().pull(p);
   revalidatePath("/admin", "layout");

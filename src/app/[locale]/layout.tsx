@@ -1,3 +1,4 @@
+import { siteBase } from "@/lib/site";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Figtree } from "next/font/google";
@@ -19,7 +20,7 @@ const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const fr = (await params).locale === "fr";
   return {
-    metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
+    metadataBase: new URL(siteBase()),
     openGraph: { type: "website", siteName: "La Bastide de Lestrebaldie", locale: fr ? "fr_FR" : "en_GB", images: [{ url: "/img/photos/outdoor-102.jpg", width: 1800, height: 1197, alt: "La Bastide de Lestrebaldie" }] },
     twitter: { card: "summary_large_image" },
     title: { default: "La Bastide de Lestrebaldie · Gîtes en Aveyron", template: "%s · La Bastide de Lestrebaldie" },
