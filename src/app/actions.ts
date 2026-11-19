@@ -5,7 +5,8 @@ import { db } from "@/lib/db";
 import { createSession, currentUser, destroySession } from "@/lib/session";
 import { BookingError, cancelBooking, confirmBooking, createHold } from "@/lib/booking";
 import { startPayment, stripeEnabled } from "@/lib/payments";
-import { isValidISO } from "@/lib/dates";
+import { isValidISO, today } from "@/lib/dates";
+import { notify, ownerEmail } from "@/lib/notify";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/property";
 
@@ -91,4 +92,24 @@ export async function cancelMine(ref: string, locale: string) {
   if (!u || !b || b.userId !== u.id) return;
   await cancelBooking(ref, { by: "guest", reason: "Cancelled by guest" });
   redirect(`/${locale}/account`);
+}
+
+/** A guest writes a review for a finished stay. It stays hidden ("pending") until the owner approves it in the admin. */
+export async function submitReview(ref: string, locale: string, f: FormData) {
+  const u = await currentUser();
+  const b = await db.booking.findUnique({ where: { ref }, include: { property: true } });
+  const back = `/${locale}/account`;
+  if (!u || !b || b.userId !== u.id || b.status !== "confirmed" || b.checkOut > today()) redirect(back);
+  const rating = Math.round(Number(f.get("rating")));
+  const text = str(f, "text");
+  if (!(rating >= 1 && rating <= 5) || text.length < 20 || text.length > 1500) redirect(`${back}?review=invalid#stay-${ref}`);
+  if (await db.review.findUnique({ where: { bookingId: b.id } })) redirect(back);
+  const [first, ...rest] = u.name.trim().split(/\s+/);
+  const name = rest.length ? `${first} ${rest[rest.length - 1].charAt(0).toUpperCase()}.` : first;
+  const stayLabel = new Date(`${b.checkOut}T00:00:00Z`).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  await db.review.create({
+    data: { name, stayLabel, rating, textEn: text, textFr: "", source: "direct", status: "pending", published: false, userId: u.id, bookingId: b.id },
+  });
+  await notify("owner", ownerEmail(), `New review to approve from ${name}`, `${name} left a ${rating}/5 review for ${b.property.name} (${stayLabel}):\n\n"${text}"\n\nApprove or reject it in Admin → Reviews. It is not shown on the site until you approve it.`);
+  redirect(`${back}?review=sent#stay-${ref}`);
 }

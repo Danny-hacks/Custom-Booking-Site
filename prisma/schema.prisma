@@ -150,6 +150,9 @@ model Offer {
 model Review {
   id        String   @id @default(cuid())
   published Boolean  @default(true)
+  status    String   @default("approved") // pending | approved | rejected (guest-written reviews start as pending)
+  userId    String?
+  bookingId String?  @unique // one review per stay
   sample    Boolean  @default(false) // placeholder text, never shown in production
   priority  Int      @default(0)
   name      String

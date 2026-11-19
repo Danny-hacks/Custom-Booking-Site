@@ -12,7 +12,7 @@ export type ReviewView = {
 /** Published reviews; placeholder (sample) ones are hidden in production so they can never go live by accident. */
 export async function liveReviews(locale: Locale, take = 6): Promise<ReviewView[]> {
   const rows = await db.review.findMany({
-    where: { published: true, ...(process.env.NODE_ENV === "production" ? { sample: false } : {}) },
+    where: { published: true, status: "approved", ...(process.env.NODE_ENV === "production" ? { sample: false } : {}) },
     orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
     take,
   });

@@ -259,8 +259,9 @@ export async function saveReview(id: string | null, f: FormData) {
     textFr: s(f, "textFr"),
     source: ["airbnb", "direct", "google"].includes(s(f, "source")) ? s(f, "source") : "airbnb",
   };
-  if (id) await db.review.update({ where: { id }, data });
-  else await db.review.create({ data });
+  const status = data.published ? "approved" : (id && (await db.review.findUnique({ where: { id } }))?.status === "pending" ? "pending" : "approved");
+  if (id) await db.review.update({ where: { id }, data: { ...data, status } });
+  else await db.review.create({ data: { ...data, status } });
   revalidatePath("/", "layout");
   redirect("/admin/reviews");
 }
@@ -268,7 +269,14 @@ export async function saveReview(id: string | null, f: FormData) {
 export async function toggleReview(id: string) {
   await requireAdmin();
   const r = await db.review.findUnique({ where: { id } });
-  if (r) await db.review.update({ where: { id }, data: { published: !r.published } });
+  if (r) await db.review.update({ where: { id }, data: { published: !r.published, status: !r.published ? "approved" : r.status } });
+  revalidatePath("/", "layout");
+}
+
+/** Owner decision on a guest-written review: approving makes it public, rejecting keeps it hidden (and visible to the guest as "not published"). */
+export async function decideReview(id: string, approve: boolean) {
+  await requireAdmin();
+  await db.review.update({ where: { id }, data: approve ? { status: "approved", published: true } : { status: "rejected", published: false } }).catch(() => {});
   revalidatePath("/", "layout");
 }
 

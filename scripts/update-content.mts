@@ -5,6 +5,7 @@
 import { PrismaClient } from "@prisma/client";
 import { COTTAGE_PHOTOS, PROPERTY_PHOTOS, ph } from "../src/lib/photos";
 import { HIGHLIGHTS, TAGLINE } from "../src/lib/brand";
+import { TESTIMONIALS } from "../src/lib/testimonials";
 
 const db = new PrismaClient();
 const props = await db.property.findMany();
@@ -34,5 +35,14 @@ for (const o of await db.offer.findMany()) {
     await db.offer.update({ where: { id: o.id }, data: { imageUrl: swap[o.imageUrl] } });
     console.log(`offer picture updated: ${o.titleEn}`);
   }
+}
+// placeholder testimonials, only while there are no real reviews yet
+if ((await db.review.count({ where: { NOT: { id: { startsWith: "testimonial-" } }, sample: false } })) === 0) {
+  for (const t of TESTIMONIALS) {
+    const data = { name: t.name, origin: t.origin, stayLabel: t.stayLabel, rating: t.rating, textEn: t.textEn, textFr: t.textFr, source: "direct", published: true, status: "approved", sample: false };
+    await db.review.upsert({ where: { id: t.id }, update: data, create: { id: t.id, priority: 10 - TESTIMONIALS.indexOf(t), ...data } });
+  }
+  await db.review.deleteMany({ where: { sample: true } });
+  console.log(`placeholder testimonials in place (${TESTIMONIALS.length})`);
 }
 await db.$disconnect();

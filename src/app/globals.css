@@ -229,3 +229,11 @@ html:has(dialog.menu-sheet[open]) { overflow: hidden; }
 
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* five-star picker: radios in reverse order so a CSS sibling rule can fill every star up to the chosen one */
+.stars { display: inline-flex; flex-direction: row-reverse; gap: 2px; }
+.stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.stars label { cursor: pointer; color: var(--line-strong, #cdbfa9); transition: color 0.15s, transform 0.15s; }
+.stars label:hover { transform: scale(1.12); }
+.stars input:checked ~ label, .stars label:hover, .stars label:hover ~ label { color: var(--sun); }
+.stars input:focus-visible + label { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 6px; }

@@ -128,7 +128,7 @@ export default async function PropertyPage({ params, searchParams }: PageProps<"
             <h2 className="text-2xl">{d.prop.location}</h2>
             <p className="mt-3 text-ink-soft">{d.prop.locationText}</p>
             <div className="relative mt-5 aspect-[16/7] overflow-hidden rounded-2xl">
-              <Image src="/img/site/area-segala.jpg" alt="" fill sizes="60vw" className="object-cover" />
+              <Image src="/img/area/landscape.jpg" alt="" fill sizes="60vw" className="object-cover" />
             </div>
           </Reveal>
 

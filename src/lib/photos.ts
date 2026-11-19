@@ -4,7 +4,7 @@
  * folder, add one line here, and (optionally) list it in PROPERTY_PHOTO_ORDER.
  * Pure data: safe to import from pages, the seed and the update scripts.
  */
-export type PhotoCat = "living" | "kitchen" | "bedroom" | "bathroom" | "detail" | "outdoor";
+export type PhotoCat = "living" | "kitchen" | "bedroom" | "bathroom" | "detail" | "outdoor" | "pool";
 export type CatalogPhoto = { src: string; cat: PhotoCat; alt_en: string; alt_fr: string };
 
 const P = (cat: PhotoCat, n: number, alt_en: string, alt_fr: string): CatalogPhoto => ({
@@ -103,6 +103,9 @@ export const CATALOG: CatalogPhoto[] = [
   P("outdoor", 103, "Shuttered stone window among the leaves", "Fenêtre aux volets bruns dans le feuillage"),
   P("outdoor", 104, "Garden gate and wooden doors", "Portail du jardin et portes en bois"),
   P("outdoor", 105, "The house against the wooded hills", "La maison face aux collines boisées"),
+  // pool (supplied as 1.5k PNGs: used at modest sizes only)
+  P("pool", 1, "The heated covered pool", "La piscine couverte et chauffée"),
+  P("pool", 2, "Pool with loungers and valley views", "Piscine, transats et vue sur la vallée"),
   // the small things: cosy details
   P("detail", 17, "Table setting with a woven placemat", "Mise en table et set tressé"),
   P("detail", 18, "Coffee machine ready on the counter", "Machine à café prête sur le plan de travail"),
@@ -134,10 +137,11 @@ export const CAT_LABEL: Record<PhotoCat, { en: string; fr: string }> = {
   kitchen: { en: "Kitchens", fr: "Cuisines" },
   bedroom: { en: "Bedrooms", fr: "Chambres" },
   bathroom: { en: "Bathrooms", fr: "Salles de bains" },
+  pool: { en: "Pool", fr: "Piscine" },
   outdoor: { en: "Outdoors", fr: "Extérieurs" },
   detail: { en: "Little details", fr: "Petits détails" },
 };
-export const CAT_ORDER: PhotoCat[] = ["living", "bedroom", "kitchen", "bathroom", "outdoor", "detail"];
+export const CAT_ORDER: PhotoCat[] = ["living", "bedroom", "kitchen", "bathroom", "outdoor", "pool", "detail"];
 
 const bySrc = new Map(CATALOG.map((p) => [p.src, p]));
 export const photo = (src: string) => bySrc.get(src);
@@ -147,7 +151,7 @@ const find = (cat: PhotoCat, n: number) => `/img/photos/${cat}-${String(n).padSt
 export const ph = (cat: PhotoCat, n: number) => bySrc.get(find(cat, n))!;
 
 /** The property gallery: the five mosaic photos first (outside, living room, the garden, a bedroom, the cosy lounge), then the rest by room type. */
-const LEAD = [find("outdoor", 86), find("living", 2), find("outdoor", 87), find("bedroom", 51), find("living", 49), find("outdoor", 102)];
+const LEAD = [find("outdoor", 86), find("living", 2), find("pool", 1), find("bedroom", 51), find("living", 49), find("outdoor", 102)];
 export const PROPERTY_PHOTOS = [
   ...LEAD.map((s) => bySrc.get(s)!),
   ...CAT_ORDER.flatMap((c) => inCat(c)).filter((p) => !LEAD.includes(p.src)),

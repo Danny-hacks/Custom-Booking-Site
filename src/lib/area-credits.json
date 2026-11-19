@@ -1,0 +1,37 @@
+{
+  "conques": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Saint_Faith_Abbey_Church_of_Conques_22.jpg"
+  },
+  "belcastel": {
+    "author": "kallerna",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Belcastel_5.jpg"
+  },
+  "gorges": {
+    "author": "Thérèse Gaigé",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Gorges_de_l%27Aveyron_vers_Penne_(Tarn)_-_02.jpg"
+  },
+  "rodez": {
+    "author": "Calips",
+    "license": "CC BY-SA 3.0",
+    "url": "https://commons.wikimedia.org/wiki/File:France_Occitanie_12_Rodez_Soulages_01.jpg"
+  },
+  "walking": {
+    "author": "Wikimedia Commons contributor",
+    "license": "CC BY-SA 3.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Via_Podiensis,_Aubrac_field_with_cows.jpg"
+  },
+  "food": {
+    "author": "Slastic",
+    "license": "Public domain",
+    "url": "https://commons.wikimedia.org/wiki/File:Bol_d%27aligot.jpg"
+  },
+  "landscape": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Landscape_of_Aveyron_02.jpg"
+  }
+}

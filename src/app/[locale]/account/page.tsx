@@ -8,14 +8,16 @@ import { view } from "@/lib/property";
 import { refundPct } from "@/lib/pricing";
 import { eur, fmtDate, today } from "@/lib/dates";
 import { AuthForms } from "@/components/AuthForms";
-import { cancelMine, logout } from "@/app/actions";
+import { cancelMine, logout, submitReview } from "@/app/actions";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 
 export const generateMetadata = titleMeta("account", true);
 
-export default async function Account({ params }: PageProps<"/[locale]/account">) {
+export default async function Account({ params, searchParams }: PageProps<"/[locale]/account">) {
   const locale = (await params).locale as Locale;
+  const sp = await searchParams;
+  const fr = locale === "fr";
   const d = t(locale);
   const user = await currentUser();
 
@@ -33,6 +35,9 @@ export default async function Account({ params }: PageProps<"/[locale]/account">
     include: { property: true },
     orderBy: { checkIn: "desc" },
   });
+
+  const mine = await db.review.findMany({ where: { userId: user.id } });
+  const reviewOf = new Map(mine.map((r) => [r.bookingId, r]));
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-12">
@@ -55,7 +60,7 @@ export default async function Account({ params }: PageProps<"/[locale]/account">
           const refund = Math.round((b.total * pct) / 100);
           const upcoming = b.checkIn >= today();
           return (
-            <li key={b.id} className="rounded-2xl border border-line bg-paper p-5">
+            <li key={b.id} id={`stay-${b.ref}`} className="scroll-mt-24 rounded-2xl border border-line bg-paper p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="serif text-xl">{b.property.name}</p>
@@ -72,6 +77,38 @@ export default async function Account({ params }: PageProps<"/[locale]/account">
                   <ConfirmButton className="btn-ghost !border-danger text-danger" message={`${d.account.cancelConfirm} ${eur(refund, locale)}`}>{d.account.cancel}</ConfirmButton>
                 </form>
               )}
+              {b.status === "confirmed" && !upcoming && b.checkOut <= today() && (() => {
+                const r = reviewOf.get(b.id);
+                return (
+                  <div className="mt-4 border-t border-line pt-4">
+                    {r ? (
+                      <p className="flex items-start gap-2 text-sm text-ink-soft">
+                        <Icon name="star" size={18} weight="fill" className="mt-0.5 shrink-0 text-sun" />
+                        <span>{r.status === "approved" ? (fr ? "Merci ! Votre avis est publié sur le site." : "Thank you! Your review is live on the site.") : r.status === "rejected" ? (fr ? "Votre avis n’a pas été retenu. Écrivez-nous si vous avez des questions." : "Your review was not published. Contact us if you have questions.") : (fr ? "Merci ! Votre avis sera visible après validation par nos soins." : "Thank you! Your review will appear once we have approved it.")}</span>
+                      </p>
+                    ) : (
+                      <form action={submitReview.bind(null, b.ref, locale)} className="grid gap-3">
+                        <p className="font-semibold">{fr ? "Comment était votre séjour ?" : "How was your stay?"}</p>
+                        <fieldset className="flex items-center gap-3">
+                          <legend className="sr-only">{fr ? "Note" : "Rating"}</legend>
+                          <span className="stars">
+                            {[5, 4, 3, 2, 1].map((n) => (
+                              <span key={n} className="contents"><input type="radio" name="rating" id={`r-${b.ref}-${n}`} value={n} required defaultChecked={n === 5} /><label htmlFor={`r-${b.ref}-${n}`} title={`${n}/5`}><Icon name="star" size={30} weight="fill" /><span className="sr-only">{n}/5</span></label></span>
+                            ))}
+                          </span>
+                        </fieldset>
+                        <label className="grid gap-1.5 text-sm font-semibold">
+                          {fr ? "Votre avis" : "Your review"}
+                          <textarea name="text" required minLength={20} maxLength={1500} rows={4} className="field font-normal" placeholder={fr ? "Ce que vous avez aimé, pour qui, à quelle saison…" : "What you loved, who it suits, the season you came…"} />
+                        </label>
+                        {sp.review === "invalid" && <p className="text-sm text-danger" role="alert">{fr ? "Merci d’écrire au moins 20 caractères." : "Please write at least 20 characters."}</p>}
+                        <p className="text-xs text-ink-soft">{fr ? "Votre prénom et l’initiale de votre nom seront affichés. L’avis est publié après validation." : "Your first name and last initial are shown. Reviews are published after approval."}</p>
+                        <button className="btn w-fit">{fr ? "Envoyer mon avis" : "Send my review"}</button>
+                      </form>
+                    )}
+                  </div>
+                );
+              })()}
             </li>
           );
         })}

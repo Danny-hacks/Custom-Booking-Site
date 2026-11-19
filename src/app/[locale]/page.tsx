@@ -36,13 +36,12 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       <section className="mx-auto max-w-[1240px] px-5 pt-5">
         <div className="relative isolate min-h-[560px] overflow-hidden rounded-[36px] bg-navy sm:min-h-[640px]">
           <Image src={hero.src} alt={alt(hero)} fill priority sizes="1240px" className="-z-10 object-cover" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy/80 via-navy/40 to-navy/5" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy/70 via-navy/25 to-transparent" />
           <div className="flex min-h-[560px] max-w-[720px] flex-col justify-end px-7 pb-28 pt-12 sm:min-h-[640px] sm:px-12">
             <p className="rise inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-[13px] font-semibold text-white backdrop-blur">
               <Icon name="pin" size={16} weight="fill" /> {d.home.eyebrow}
             </p>
             <h1 className="rise mt-5 text-[40px] text-white [text-shadow:0_2px_18px_rgba(30,18,8,0.5)] [--d:1] sm:text-[58px] lg:text-[68px]">La Bastide de Lestrebaldie</h1>
-            <p className="rise mt-3 text-[20px] font-medium text-[#f6e6cc] [text-shadow:0_2px_14px_rgba(30,18,8,0.55)] [--d:2] sm:text-[28px]">{d.home.heroLine}</p>
             <p className="rise mt-4 max-w-[34rem] text-[17px] text-white/90 [--d:3]">{c.tagline}</p>
             <ul className="mt-6 flex flex-wrap gap-2.5">
               {[["pool", c.highlights[1]], ["star", c.highlights[0]], ["car", c.highlights[2]]].map(([i, l], n) => (
@@ -83,7 +82,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
             <Image src={ph("living", 49).src} alt={alt(ph("living", 49))} fill sizes="(min-width:1024px) 40vw, 90vw" className="object-cover" />
           </div>
           <div className="absolute -bottom-6 -right-2 w-[44%] overflow-hidden rounded-[22px] border-[6px] border-canvas shadow-xl sm:-right-8">
-            <div className="relative aspect-[4/5]"><Image src={ph("detail", 25).src} alt={alt(ph("detail", 25))} fill sizes="25vw" className="object-cover" /></div>
+            <div className="relative aspect-[4/5]"><Image src={ph("living", 8).src} alt={alt(ph("living", 8))} fill sizes="25vw" className="object-cover" /></div>
           </div>
         </Reveal>
         <Reveal kind="right">
@@ -129,7 +128,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
           <div className="card lift zoom grid overflow-hidden lg:grid-cols-[1.25fr_1fr]">
             <Link href={stay} className="grid min-h-[320px] grid-cols-3 grid-rows-2 gap-1.5 p-1.5" aria-label={p.name}>
               <div className="relative col-span-2 row-span-2 overflow-hidden rounded-[22px]"><Image src={ph("living", 2).src} alt={alt(ph("living", 2))} fill sizes="(min-width:1024px) 40vw, 66vw" className="object-cover" /></div>
-              <div className="relative overflow-hidden rounded-[22px]"><Image src={ph("outdoor", 87).src} alt={alt(ph("outdoor", 87))} fill sizes="20vw" className="object-cover" /></div>
+              <div className="relative overflow-hidden rounded-[22px]"><Image src={ph("pool", 1).src} alt={alt(ph("pool", 1))} fill sizes="20vw" className="object-cover" /></div>
               <div className="relative overflow-hidden rounded-[22px]"><Image src={ph("bedroom", 51).src} alt={alt(ph("bedroom", 51))} fill sizes="20vw" className="object-cover" /></div>
             </Link>
             <div className="flex flex-col p-6 sm:p-8">
@@ -196,9 +195,9 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
             <Link href={stay} className="mt-8 inline-flex items-center gap-2 font-bold text-white underline underline-offset-4">{d.home.cta} <Icon name="arrow" size={18} /></Link>
           </Reveal>
           <div className="grid grid-cols-2 gap-3">
-            <Reveal kind="img" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-[28px]"><Image src={ph("outdoor", 87).src} alt={alt(ph("outdoor", 87))} fill sizes="(min-width:1024px) 55vw, 100vw" className="object-cover" /></Reveal>
-            <Reveal kind="img" d={2} className="relative aspect-[4/3] overflow-hidden rounded-[28px]"><Image src={ph("outdoor", 200).src} alt={alt(ph("outdoor", 200))} fill sizes="(min-width:1024px) 27vw, 50vw" className="object-cover" /></Reveal>
-            <Reveal kind="img" d={4} className="relative aspect-[4/3] overflow-hidden rounded-[28px]"><Image src={ph("outdoor", 85).src} alt={alt(ph("outdoor", 85))} fill sizes="(min-width:1024px) 27vw, 50vw" className="object-cover" /></Reveal>
+            <Reveal kind="img" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-[28px]"><Image src={ph("pool", 1).src} alt={alt(ph("pool", 1))} fill sizes="(min-width:1024px) 55vw, 100vw" className="object-cover" /></Reveal>
+            <Reveal kind="img" d={2} className="relative aspect-[4/3] overflow-hidden rounded-[28px]"><Image src={ph("pool", 2).src} alt={alt(ph("pool", 2))} fill sizes="(min-width:1024px) 27vw, 50vw" className="object-cover" /></Reveal>
+            <Reveal kind="img" d={4} className="relative aspect-[4/3] overflow-hidden rounded-[28px]"><Image src={ph("outdoor", 200).src} alt={alt(ph("outdoor", 200))} fill sizes="(min-width:1024px) 27vw, 50vw" className="object-cover" /></Reveal>
           </div>
         </div>
       </section>
@@ -237,8 +236,8 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       {/* AREA */}
       <section className="mx-auto mt-24 grid max-w-[1240px] items-center gap-10 px-5 lg:grid-cols-2">
         <Reveal kind="left" className="grid grid-cols-5 gap-3">
-          <div className="zoom relative col-span-3 aspect-[3/4] overflow-hidden rounded-[28px]"><Image src="/img/site/area-conques.jpg" alt="Conques" fill sizes="30vw" className="object-cover sepia-[.35]" /></div>
-          <div className="zoom relative col-span-2 mt-12 aspect-[2/3] overflow-hidden rounded-[28px]"><Image src="/img/site/area-segala.jpg" alt="Aveyron" fill sizes="20vw" className="object-cover" /></div>
+          <div className="zoom relative col-span-3 aspect-[3/4] overflow-hidden rounded-[28px]"><Image src="/img/area/conques.jpg" alt="Conques" fill sizes="30vw" className="object-cover" /></div>
+          <div className="zoom relative col-span-2 mt-12 aspect-[2/3] overflow-hidden rounded-[28px]"><Image src="/img/area/belcastel.jpg" alt="Belcastel" fill sizes="20vw" className="object-cover" /></div>
         </Reveal>
         <Reveal kind="right">
           <p className="eyebrow">{d.nav.area}</p>

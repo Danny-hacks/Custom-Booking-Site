@@ -27,7 +27,7 @@ export function Footer({ locale }: { locale: Locale }) {
         </nav>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs opacity-70">
-        © {new Date().getFullYear()} La Bastide de Lestrebaldie · {d.footer.rights} · {d.footer.photos} {PHOTO_CREDIT}
+        © {new Date().getFullYear()} La Bastide de Lestrebaldie · {d.footer.rights} · {d.footer.photos} {PHOTO_CREDIT} · <Link href={`/${locale}/area#credits`} className="underline">{d.footer.areaPhotos}</Link>
       </div>
     </footer>
   );

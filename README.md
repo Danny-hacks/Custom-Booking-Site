@@ -34,7 +34,14 @@ Rates, cleaning fee, tourist tax, cancellation tiers, house rules, check-in/out 
 - Admin sessions are signed cookies; add rate limiting and 2FA before production.
 
 ## Reviews
-Admin → Reviews: add real reviews (copy from Airbnb with the guest's OK). The three highest-priority published ones show on the home and property pages next to the 4.83 / 12 Airbnb rating (edit `RATING` in `src/lib/reviews.ts`). Reviews flagged "Placeholder" never show in production. `npx tsx --env-file=.env scripts/seed-reviews.mts` adds three placeholders.
+Guests who finished a confirmed stay see a **Leave a review** form under that booking in their account (1–5 stars + text). It is saved as *pending*, the owner gets a notification, and nothing is public until you press **Approve and publish** in Admin → Reviews (a badge in the menu counts the waiting ones). Rejected reviews stay hidden. You can also add reviews by hand (copy from Airbnb with the guest's OK). Reviews appear on the home page (top three by priority), the property page and the full /reviews page, next to the Airbnb rating (edit `RATING` in `src/lib/reviews.ts`).
+
+**Placeholder testimonials** (`src/lib/testimonials.ts`) are approved so the section is not empty while testing. They are not real guests: replace them with real ones before launch (publishing invented reviews is illegal in France). `npx tsx --env-file=.env scripts/seed-reviews.mts` re-adds them; `update-content.mts` adds them only while there are no real reviews.
+
+After pulling this change run `npx prisma db push` against the production database once (it adds three optional columns to reviews).
+
+## Area photos
+The Area page photos are from Wikimedia Commons (CC BY-SA / public domain). Authors and licences are in `src/lib/area-credits.json` and printed on the Area page, as the licences require.
 
 ## QA scripts (dev server running)
 - `npx tsx --env-file=.env scripts/flow-test.mts`: booking logic (holds, overlaps, refunds, iCal).

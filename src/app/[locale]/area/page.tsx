@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { t } from "@/lib/i18n";
 import { getFeatured } from "@/lib/queries";
-import { PLACES } from "@/lib/area";
+import { AREA_CREDITS, PLACES } from "@/lib/area";
 import type { Locale } from "@/lib/property";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
@@ -23,7 +23,7 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
     <main className="pb-4">
       <section className="mx-auto max-w-[1240px] px-5 pt-5">
         <div className="relative isolate flex min-h-[300px] items-end overflow-hidden rounded-[28px] bg-navy sm:min-h-[360px]">
-          <Image src="/img/site/area-segala.jpg" alt="" fill priority sizes="1240px" className="-z-10 object-cover" />
+          <Image src="/img/area/landscape.jpg" alt="" fill priority sizes="1240px" className="-z-10 object-cover" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-navy/85 via-navy/30 to-transparent" />
           <div className="max-w-2xl p-7 sm:p-12">
             <h1 className="rise text-[38px] text-white sm:text-[52px]">{d.area.title}</h1>
@@ -39,7 +39,7 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
               <article className="card lift zoom flex h-full flex-col overflow-hidden">
                 <div className="relative aspect-[16/9] overflow-hidden">
                   {pl.image ? (
-                    <Image src={pl.image} alt={locale === "fr" ? pl.nameFr ?? pl.name : pl.name} fill sizes="(min-width:1024px) 30vw, 100vw" className={`object-cover ${pl.image.includes("conques") ? "sepia-[.35]" : ""}`} />
+                    <Image src={pl.image} alt={locale === "fr" ? pl.nameFr ?? pl.name : pl.name} fill sizes="(min-width:1024px) 30vw, 100vw" className="object-cover" />
                   ) : (
                     <div className="grid h-full place-items-center bg-gradient-to-br from-tint to-canvas text-brand/60"><Icon name={pl.icon} size={52} weight="duotone" /></div>
                   )}
@@ -69,7 +69,12 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
             {p && <Link href={`/${locale}/properties/${p.slug}#book`} className="btn">{d.card.reserve} <Icon name="arrow" size={18} /></Link>}
           </div>
         </Reveal>
-        <p className="mt-6 text-xs text-ink-soft">{d.area.credit}</p>
+        <p id="credits" className="mt-6 scroll-mt-24 text-xs leading-relaxed text-ink-soft">
+          {d.area.credit}{" "}
+          {([...PLACES.flatMap((pl) => (pl.photo ? [[locale === "fr" ? pl.nameFr ?? pl.name : pl.name, pl.photo] as const] : [])), [fr ? "Paysage" : "Landscape", "landscape"] as const]).map(([label, key], i) => (
+            <span key={key}>{i > 0 && " · "}<a href={AREA_CREDITS[key].url} target="_blank" rel="noopener noreferrer" className="underline">{label}</a>: {AREA_CREDITS[key].author} ({AREA_CREDITS[key].license})</span>
+          ))}
+        </p>
       </section>
     </main>
   );

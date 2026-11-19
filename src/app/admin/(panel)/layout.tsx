@@ -20,6 +20,8 @@ const nav = [
 export default async function Panel({ children }: LayoutProps<"/admin">) {
   const user = await requireAdmin();
   const unsent = await db.notification.count({ where: { delivered: false, audience: "owner" } });
+  const pendingReviews = await db.review.count({ where: { status: "pending" } });
+  const badge = (label: string) => (label === "Notifications" ? unsent : label === "Reviews" ? pendingReviews : 0);
   return (
     <div className="grid min-h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] md:grid-cols-[240px_minmax(0,1fr)] md:grid-rows-none">
       <aside className="sticky top-0 z-30 bg-navy text-[#e9e3d6] md:h-dvh md:p-4">
@@ -27,7 +29,7 @@ export default async function Panel({ children }: LayoutProps<"/admin">) {
         <div className="flex h-14 items-center justify-between px-4 md:hidden">
           <p className="serif text-lg text-white">Lestrebaldie</p>
           <AdminMobileNav
-            items={nav.map(([href, icon, label]) => ({ href, icon, label, badge: label === "Notifications" ? unsent : 0 }))}
+            items={nav.map(([href, icon, label]) => ({ href, icon, label, badge: badge(label) }))}
             email={user.email}
             logout={adminLogout}
           />
@@ -40,7 +42,7 @@ export default async function Panel({ children }: LayoutProps<"/admin">) {
             {nav.map(([href, icon, label]) => (
               <Link key={href} href={href} className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-[15px] hover:bg-white/10">
                 <Icon name={icon} size={20} /> {label}
-                {label === "Notifications" && unsent > 0 && <span className="ml-auto rounded-full bg-brand px-2 text-xs text-white">{unsent}</span>}
+                {badge(label) > 0 && <span className="ml-auto rounded-full bg-brand px-2 text-xs text-white">{badge(label)}</span>}
               </Link>
             ))}
           </nav>

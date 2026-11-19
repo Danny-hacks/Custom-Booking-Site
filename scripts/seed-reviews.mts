@@ -1,29 +1,12 @@
-// Adds PLACEHOLDER reviews so the section can be designed and tested.
-// They are flagged `sample` and are never shown in production. Replace them in Admin → Reviews
-// with real guest reviews (copy from Airbnb, with the guest's OK).
+// Adds the placeholder testimonials (see src/lib/testimonials.ts). Safe to run again: it updates them by id.
 import { PrismaClient } from "@prisma/client";
-
+import { TESTIMONIALS } from "../src/lib/testimonials";
 const db = new PrismaClient();
-if ((await db.review.count()) === 0) {
-  await db.review.createMany({
-    data: [
-      {
-        sample: true, name: "Sample guest A", origin: "Lyon, France", stayLabel: "Summer 2025", rating: 5, priority: 3,
-        textEn: "Sample text: replace with a real review. Room for everyone, a pool for the kids and long dinners at the big table.",
-        textFr: "Texte d’exemple : à remplacer par un vrai avis. De la place pour tous, une piscine pour les enfants et de longs dîners à la grande table.",
-      },
-      {
-        sample: true, name: "Sample guest B", origin: "Brussels, Belgium", stayLabel: "Spring 2025", rating: 5, priority: 2,
-        textEn: "Sample text: replace with a real review. Quiet, beautiful views and hosts who answered within minutes.",
-        textFr: "Texte d’exemple : à remplacer par un vrai avis. Calme, belles vues et des hôtes qui répondent en quelques minutes.",
-      },
-      {
-        sample: true, name: "Sample guest C", origin: "Amsterdam, Netherlands", stayLabel: "Autumn 2024", rating: 4, priority: 1,
-        textEn: "Sample text: replace with a real review. A great base for exploring Conques and the gorges.",
-        textFr: "Texte d’exemple : à remplacer par un vrai avis. Une super base pour explorer Conques et les gorges.",
-      },
-    ],
-  });
-  console.log("seeded 3 sample reviews");
+for (const t of TESTIMONIALS) {
+  const data = { name: t.name, origin: t.origin, stayLabel: t.stayLabel, rating: t.rating, textEn: t.textEn, textFr: t.textFr, source: "direct", published: true, status: "approved", sample: false };
+  await db.review.upsert({ where: { id: t.id }, update: data, create: { id: t.id, priority: 10 - TESTIMONIALS.indexOf(t), ...data } });
 }
+// the old "sample text" rows from the first version are replaced by these
+await db.review.deleteMany({ where: { sample: true } });
+console.log(`${TESTIMONIALS.length} placeholder testimonials in place`);
 await db.$disconnect();

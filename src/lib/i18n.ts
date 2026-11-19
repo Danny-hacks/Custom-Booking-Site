@@ -153,7 +153,7 @@ const en = {
       ["Walking & cycling", "Marked trails start close to the house, including sections of the Way of St James."],
       ["Food", "Aligot, Roquefort, Laguiole knives and Marcillac wines are all local."],
     ],
-    credit: "Photo credits: Conques, Wikimedia Commons (public domain/no restrictions); Segala landscape, Wikimedia Commons, CC BY-SA 4.0.",
+    credit: "Area photos from Wikimedia Commons, with thanks to their authors:",
   },
   faq: {
     title: "Questions, answered",
@@ -168,7 +168,7 @@ const en = {
     ],
   },
   contact: { title: "Talk to your hosts", lead: "We usually reply within the hour.", email: "Email", send: "Write to us" },
-  footer: { tag: "Your exceptional escape in Aveyron.", legal: "Legal notice", terms: "Terms of stay", privacy: "Privacy", rights: "All rights reserved.", photos: "Photos:" },
+  footer: { tag: "Your exceptional escape in Aveyron.", legal: "Legal notice", terms: "Terms of stay", privacy: "Privacy", rights: "All rights reserved.", photos: "Photos:", areaPhotos: "Area photo credits" },
   legal: { terms: "Terms of stay", privacy: "Privacy policy", draft: "Draft text. To be reviewed and completed with the owner's legal details (SIRET, address, VAT) before launch." },
   common: { back: "Back", loading: "Loading…" },
 };
@@ -328,7 +328,7 @@ const fr: Dict = {
       ["Randonnée et vélo", "Des sentiers balisés partent près de la maison, dont des tronçons du chemin de Saint-Jacques."],
       ["Gastronomie", "Aligot, roquefort, couteaux de Laguiole et vins de Marcillac sont tous locaux."],
     ],
-    credit: "Crédits photo : Conques, Wikimedia Commons (domaine public) ; paysage de la Ségala, Wikimedia Commons, CC BY-SA 4.0.",
+    credit: "Photos de la région issues de Wikimedia Commons, avec nos remerciements à leurs auteurs :",
   },
   faq: {
     title: "Vos questions",
@@ -343,7 +343,7 @@ const fr: Dict = {
     ],
   },
   contact: { title: "Parlez à vos hôtes", lead: "Nous répondons généralement en moins d'une heure.", email: "E-mail", send: "Écrivez-nous" },
-  footer: { tag: "Votre parenthèse d'exception en Aveyron.", legal: "Mentions légales", terms: "Conditions de séjour", privacy: "Confidentialité", rights: "Tous droits réservés.", photos: "Photographies :" },
+  footer: { tag: "Votre parenthèse d'exception en Aveyron.", legal: "Mentions légales", terms: "Conditions de séjour", privacy: "Confidentialité", rights: "Tous droits réservés.", photos: "Photographies :", areaPhotos: "Crédits photos de la région" },
   legal: { terms: "Conditions de séjour", privacy: "Politique de confidentialité", draft: "Texte provisoire, à relire et compléter avec les informations légales du propriétaire (SIRET, adresse, TVA) avant le lancement." },
   common: { back: "Retour", loading: "Chargement…" },
 };
