@@ -108,7 +108,7 @@ export default async function PropertyPage({ params, searchParams }: PageProps<"
                 <Reveal as="li" key={s.key} d={i}><div className="lift zoom h-full rounded-2xl border border-line bg-paper p-3">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl"><Image src={s.photo} alt="" fill sizes="25vw" className="object-cover" /></div>
                   <p className="serif mt-3 text-lg">{s[locale].name}</p>
-                  <p className="text-sm text-ink-soft">{d.home.sleeps} {s.sleeps}</p>
+                  <p className="text-sm text-ink-soft">{d.home.sleeps} {s.sleeps} {d.search.guestsN}</p>
                   <p className="mt-1 text-sm text-ink-soft">{s[locale].facts.join(" · ")}</p>
                 </div></Reveal>
               ))}
