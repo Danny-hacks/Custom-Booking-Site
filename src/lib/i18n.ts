@@ -168,7 +168,7 @@ const en = {
     ],
   },
   contact: { title: "Talk to your hosts", lead: "We usually reply within the hour.", email: "Email", send: "Write to us" },
-  footer: { tag: "Your exceptional escape in Aveyron.", legal: "Legal notice", terms: "Terms of stay", privacy: "Privacy", rights: "All rights reserved." },
+  footer: { tag: "Your exceptional escape in Aveyron.", legal: "Legal notice", terms: "Terms of stay", privacy: "Privacy", rights: "All rights reserved.", photos: "Photos:" },
   legal: { terms: "Terms of stay", privacy: "Privacy policy", draft: "Draft text. To be reviewed and completed with the owner's legal details (SIRET, address, VAT) before launch." },
   common: { back: "Back", loading: "Loading…" },
 };
@@ -343,7 +343,7 @@ const fr: Dict = {
     ],
   },
   contact: { title: "Parlez à vos hôtes", lead: "Nous répondons généralement en moins d'une heure.", email: "E-mail", send: "Écrivez-nous" },
-  footer: { tag: "Votre parenthèse d'exception en Aveyron.", legal: "Mentions légales", terms: "Conditions de séjour", privacy: "Confidentialité", rights: "Tous droits réservés." },
+  footer: { tag: "Votre parenthèse d'exception en Aveyron.", legal: "Mentions légales", terms: "Conditions de séjour", privacy: "Confidentialité", rights: "Tous droits réservés.", photos: "Photographies :" },
   legal: { terms: "Conditions de séjour", privacy: "Politique de confidentialité", draft: "Texte provisoire, à relire et compléter avec les informations légales du propriétaire (SIRET, adresse, TVA) avant le lancement." },
   common: { back: "Retour", loading: "Chargement…" },
 };

@@ -12,3 +12,6 @@ export const HIGHLIGHTS = {
   en: ["Guest Favorite on Airbnb", "Heated covered pool, all year", "Free parking for 10 cars"],
   fr: ["Coup de cœur voyageurs Airbnb", "Piscine couverte chauffée toute l'année", "Parking gratuit pour 10 voitures"],
 };
+
+/** Photographer of the property photos, as recorded in the copyright tag of the files the owners supplied. */
+export const PHOTO_CREDIT = "Laurie Gerling";
