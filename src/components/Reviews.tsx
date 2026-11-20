@@ -31,13 +31,14 @@ const sourceLabel = (s: string, fr: boolean) =>
   s === "airbnb" ? (fr ? "Avis Airbnb" : "Airbnb review") : s === "google" ? (fr ? "Avis Google" : "Google review") : fr ? "Séjour en direct" : "Direct guest";
 
 /** Rating summary on the left, quote cards on the right. Used on the home and property pages. */
-export function ReviewsSection({ reviews, locale, id }: { reviews: ReviewView[]; locale: Locale; id?: string }) {
+export function ReviewsSection({ reviews, locale, id, dark }: { reviews: ReviewView[]; locale: Locale; id?: string; dark?: boolean }) {
   const fr = locale === "fr";
   return (
-    <section id={id} className="mx-auto mt-24 max-w-[1240px] scroll-mt-24 px-5">
+    <section id={id} className={dark ? "band-dark mt-24 scroll-mt-24 bg-navy py-20 text-[#eadcc6]" : "mt-24 scroll-mt-24"}>
+     <div className="mx-auto max-w-[1240px] px-5">
       <Reveal>
         <p className="eyebrow">{fr ? "Avis" : "Reviews"}</p>
-        <h2 className="mt-1 text-[30px] sm:text-[40px]">{fr ? "Ils ont séjourné chez nous" : "Guests who stayed with us"}</h2>
+        <h2 className={"mt-1 text-[30px] sm:text-[40px]" + (dark ? " text-white" : "")}>{fr ? "Ils ont séjourné chez nous" : "Guests who stayed with us"}</h2>
       </Reveal>
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr] [&>*]:min-w-0">
         <Reveal>
@@ -60,6 +61,7 @@ export function ReviewsSection({ reviews, locale, id }: { reviews: ReviewView[];
           </ul>
         )}
       </div>
+     </div>
     </section>
   );
 }

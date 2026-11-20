@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
+import { DarkBand } from "@/components/DarkBand";
+import { getFeatured } from "@/lib/queries";
 import { ReviewCard, Stars } from "@/components/Reviews";
 import { RATING, liveReviews } from "@/lib/reviews";
 import type { Locale } from "@/lib/property";
@@ -15,8 +17,10 @@ export default async function ReviewsPage({ params }: PageProps<"/[locale]/revie
   const locale = (await params).locale as Locale;
   const fr = locale === "fr";
   const reviews = await liveReviews(locale, 100);
+  const p = await getFeatured();
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-12">
+    <main>
+     <div className="mx-auto max-w-[1240px] px-5 py-12">
       <p className="eyebrow">{fr ? "Avis" : "Reviews"}</p>
       <h1 className="mt-1 text-[36px] sm:text-[48px]">{fr ? "Ce que disent nos hôtes" : "What our guests say"}</h1>
       <div className="card mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 p-6">
@@ -37,6 +41,8 @@ export default async function ReviewsPage({ params }: PageProps<"/[locale]/revie
         <p className="mt-2 max-w-xl text-ink-soft">{fr ? "Connectez-vous à votre compte, ouvrez votre séjour et laissez votre avis. Il sera publié après validation." : "Log in to your account, open your stay and leave a review. It is published once we have approved it."}</p>
         <Link href={`/${locale}/account`} className="btn mt-5">{fr ? "Laisser un avis" : "Leave a review"} <Icon name="arrow" size={18} /></Link>
       </div>
+     </div>
+     <DarkBand locale={locale} slug={p?.slug} title={fr ? "Prêts à réserver ?" : "Ready to book?"} text={fr ? "Réservez en direct, sans frais de plateforme." : "Book direct, with no platform fees."} />
     </main>
   );
 }

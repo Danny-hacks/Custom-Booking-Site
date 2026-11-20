@@ -243,3 +243,6 @@ html:has(dialog.menu-sheet[open]) { overflow: hidden; }
 @keyframes hero-zoom { from { transform: scale(1.06); } to { transform: scale(1); } }
 .hero-zoom { animation: hero-zoom 2.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @media (prefers-reduced-motion: reduce) { .hero-zoom { animation: none; } }
+
+/* dark chocolate bands that alternate with the cream sections */
+.band-dark .eyebrow { color: var(--sun-bright); }

@@ -215,7 +215,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
         </Reveal>
       </section>
 
-      <ReviewsSection reviews={reviews} locale={locale} />
+      <ReviewsSection reviews={reviews} locale={locale} dark />
 
       {/* WHY DIRECT */}
       <section className="mx-auto mt-24 max-w-[1240px] px-5">
@@ -234,17 +234,19 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       </section>
 
       {/* AREA */}
-      <section className="mx-auto mt-24 grid max-w-[1240px] items-center gap-10 px-5 lg:grid-cols-2">
+      <section className="band-dark mt-24 bg-navy py-20 text-[#eadcc6]">
+       <div className="mx-auto grid max-w-[1240px] items-center gap-10 px-5 lg:grid-cols-2">
         <Reveal kind="left" className="grid grid-cols-5 gap-3">
           <div className="zoom relative col-span-3 aspect-[3/4] overflow-hidden rounded-[28px]"><Image src="/img/area/conques.jpg" alt="Conques" fill sizes="30vw" className="object-cover" /></div>
           <div className="zoom relative col-span-2 mt-12 aspect-[2/3] overflow-hidden rounded-[28px]"><Image src="/img/area/belcastel.jpg" alt="Belcastel" fill sizes="20vw" className="object-cover" /></div>
         </Reveal>
         <Reveal kind="right">
           <p className="eyebrow">{d.nav.area}</p>
-          <h2 className="mt-1 text-[30px] sm:text-[40px]">{d.home.areaTitle}</h2>
-          <p className="mt-4 text-[17px] text-ink-soft">{d.home.areaLead}</p>
-          <Link href={`/${locale}/area`} className="btn-ghost mt-8">{d.home.areaCta} <Icon name="arrow" size={18} /></Link>
+          <h2 className="mt-1 text-[30px] text-white sm:text-[40px]">{d.home.areaTitle}</h2>
+          <p className="mt-4 text-[17px] opacity-90">{d.home.areaLead}</p>
+          <Link href={`/${locale}/area`} className="mt-8 inline-flex items-center gap-2 font-bold text-white underline underline-offset-4">{d.home.areaCta} <Icon name="arrow" size={18} /></Link>
         </Reveal>
+       </div>
       </section>
 
       {/* FINAL CTA */}

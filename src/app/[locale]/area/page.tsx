@@ -5,6 +5,7 @@ import { t } from "@/lib/i18n";
 import { getFeatured } from "@/lib/queries";
 import { AREA_CREDITS, PLACES } from "@/lib/area";
 import type { Locale } from "@/lib/property";
+import { DarkBand } from "@/components/DarkBand";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
 
@@ -58,17 +59,8 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
         </ul>
       </section>
 
-      <section className="mx-auto mt-14 max-w-[1240px] px-5">
-        <Reveal kind="scale" className="flex flex-col items-start justify-between gap-5 rounded-[28px] bg-tint p-7 sm:flex-row sm:items-center sm:p-10">
-          <div className="max-w-xl">
-            <h2 className="text-[24px] sm:text-[30px]">{fr ? "Besoin d’un conseil local ?" : "Want a local tip?"}</h2>
-            <p className="mt-1.5 text-ink-soft">{fr ? "Nous connaissons les bonnes tables et les coins de baignade. Demandez-nous." : "We know the good tables and the swimming spots. Just ask."}</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link href={`/${locale}/contact`} className="btn-ghost">{d.nav.contact}</Link>
-            {p && <Link href={`/${locale}/properties/${p.slug}#book`} className="btn">{d.card.reserve} <Icon name="arrow" size={18} /></Link>}
-          </div>
-        </Reveal>
+      <DarkBand locale={locale} slug={p?.slug} title={fr ? "Besoin d’un conseil local ?" : "Want a local tip?"} text={fr ? "Nous connaissons les bonnes tables et les coins de baignade. Demandez-nous." : "We know the good tables and the swimming spots. Just ask."} />
+      <section className="mx-auto max-w-[1240px] px-5">
         <p id="credits" className="mt-6 scroll-mt-24 text-xs leading-relaxed text-ink-soft">
           {d.area.credit}{" "}
           {([...PLACES.flatMap((pl) => (pl.photo ? [[locale === "fr" ? pl.nameFr ?? pl.name : pl.name, pl.photo] as const] : [])), [fr ? "Paysage" : "Landscape", "landscape"] as const]).map(([label, key], i) => (
