@@ -119,10 +119,11 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       </Reveal>
 
       {/* THE ESTATE: listing-style card */}
-      <section className="mx-auto mt-24 max-w-[1240px] px-5">
+      <section className="band-dark mt-24 bg-navy py-20 text-[#eadcc6]">
+       <div className="mx-auto max-w-[1240px] px-5">
         <Reveal>
           <p className="eyebrow">{d.nav.stay}</p>
-          <h2 className="mt-1 max-w-2xl text-[30px] sm:text-[40px]">{d.home.storyTitle}</h2>
+          <h2 className="mt-1 max-w-2xl text-[30px] text-white sm:text-[40px]">{d.home.storyTitle}</h2>
         </Reveal>
         <Reveal className="mt-8">
           <div className="card lift zoom grid overflow-hidden lg:grid-cols-[1.25fr_1fr]">
@@ -151,6 +152,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
             </div>
           </div>
         </Reveal>
+       </div>
       </section>
 
       {/* COTTAGES */}
