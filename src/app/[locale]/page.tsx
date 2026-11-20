@@ -33,11 +33,11 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
   return (
     <main>
       {/* HERO */}
-      <section className="mx-auto max-w-[1240px] px-5 pt-5">
-        <div className="relative isolate min-h-[560px] overflow-hidden rounded-[36px] bg-navy sm:min-h-[640px]">
-          <Image src={hero.src} alt={alt(hero)} fill priority sizes="1240px" className="hero-zoom -z-10 object-cover" />
+      <section>
+        <div className="relative isolate min-h-[600px] overflow-hidden bg-navy sm:min-h-[700px]">
+          <Image src={hero.src} alt={alt(hero)} fill priority sizes="100vw" className="hero-zoom -z-10 object-cover" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy/70 via-navy/25 to-transparent" />
-          <div className="flex min-h-[560px] max-w-[720px] flex-col justify-end px-7 pb-28 pt-12 sm:min-h-[640px] sm:px-12">
+          <div className="mx-auto flex min-h-[600px] max-w-[1240px] flex-col justify-end px-5 pb-28 pt-12 sm:min-h-[700px] sm:px-8 [&>*]:max-w-[720px]">
             <p className="rise inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-[13px] font-semibold text-white backdrop-blur">
               <Icon name="pin" size={16} weight="fill" /> {d.home.eyebrow}
             </p>
@@ -52,7 +52,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
             </ul>
           </div>
         </div>
-        <div className="relative z-20 mx-auto -mt-14 max-w-[1000px] px-2 sm:px-6">
+        <div className="relative z-20 mx-auto -mt-14 max-w-[1000px] px-5 sm:px-6">
           <div className="rise [--d:6]"><SearchBar slug={p.slug} locale={locale} minNights={p.minNights} maxGuests={p.maxGuests} /></div>
         </div>
       </section>
