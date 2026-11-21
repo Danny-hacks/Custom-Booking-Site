@@ -246,3 +246,6 @@ html:has(dialog.menu-sheet[open]) { overflow: hidden; }
 
 /* dark chocolate bands that alternate with the cream sections */
 .band-dark .eyebrow { color: var(--sun-bright); }
+/* light cards sitting on a dark band must not inherit the band's pale text */
+.band-dark .card, .band-dark .card :where(h1, h2, h3, h4, .serif) { color: var(--ink); }
+.band-dark .card .text-brand { color: var(--brand); }

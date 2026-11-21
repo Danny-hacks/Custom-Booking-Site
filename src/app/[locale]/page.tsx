@@ -183,7 +183,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
       </section>
 
       {/* POOL AND GARDEN */}
-      <section className="mt-24 bg-navy py-20 text-[#eadcc6]">
+      <section className="band-dark mt-24 bg-navy py-20 text-[#eadcc6]">
         <div className="mx-auto grid max-w-[1240px] gap-10 px-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <Reveal>
             <Ornament className="max-w-[220px] !justify-start text-sun-bright" />
