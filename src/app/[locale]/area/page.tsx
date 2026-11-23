@@ -2,12 +2,11 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { t } from "@/lib/i18n";
 import { getFeatured } from "@/lib/queries";
-import { ACTIVITIES, AREA_CREDITS, CATEGORIES, ESTATE, PLACES, PLANS, driveLabel, placeBySlug } from "@/lib/area";
+import { ACTIVITIES, AREA_CREDITS, CATEGORIES, ESTATE, PLACES, driveLabel } from "@/lib/area";
 import { AreaMap } from "@/components/AreaMap";
 import type { Locale } from "@/lib/property";
 import { AreaExplorer } from "@/components/AreaExplorer";
 import { DarkBand } from "@/components/DarkBand";
-import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
 
@@ -32,11 +31,8 @@ const COPY = {
     mapAria: "Map of places around the estate",
     mapNote: "Straight-line distances. Tap a place for details.",
     estate: "The estate",
-    plansEyebrow: "Plan your day",
-    plansTitle: "Ready-made days out",
-    plansLead: "Not sure where to start? Pick a day, or build your own below.",
-    stops: "Stops",
-    fromEstate: "from the estate",
+    legendRiver: "Rivers and lakes",
+    legendRoad: "Main roads",
     feel: "What do you feel like doing?",
     kind: "Type of place",
     none: "Nothing matches both choices. Try another combination.",
@@ -73,11 +69,8 @@ const COPY = {
     mapAria: "Carte des lieux autour du domaine",
     mapNote: "Distances à vol d’oiseau. Touchez un lieu pour le détail.",
     estate: "Le domaine",
-    plansEyebrow: "Préparez votre journée",
-    plansTitle: "Des journées toutes prêtes",
-    plansLead: "Pas sûr par où commencer ? Choisissez une journée, ou composez la vôtre plus bas.",
-    stops: "Étapes",
-    fromEstate: "depuis le domaine",
+    legendRiver: "Rivières et lacs",
+    legendRoad: "Routes principales",
     feel: "Qu’avez-vous envie de faire ?",
     kind: "Type de lieu",
     none: "Rien ne correspond aux deux choix. Essayez une autre combinaison.",
@@ -162,45 +155,10 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
           <AreaMap
             locale={locale}
             estate={{ lat: ESTATE.lat, lon: ESTATE.lon, label: c.estate }}
-            pins={PLACES.flatMap((pl) => (pl.lat && pl.lon ? [{ slug: pl.slug, name: fr ? pl.nameFr ?? pl.name : pl.name, lat: pl.lat, lon: pl.lon, drive: driveLabel(pl.drive, locale) }] : []))}
-            labels={{ near: c.near, wide: c.wide, km: c.km, aria: c.mapAria, note: c.mapNote }}
+            pins={PLACES.flatMap((pl) => (pl.lat && pl.lon ? [{ slug: pl.slug, name: fr ? pl.nameFr ?? pl.name : pl.name, lat: pl.lat, lon: pl.lon, drive: driveLabel(pl.drive, locale), photo: pl.photo ? `/img/area/${pl.photo}.jpg` : undefined, tag: pl.tag[locale] }] : []))}
+            labels={{ near: c.near, wide: c.wide, km: c.km, aria: c.mapAria, note: c.mapNote, credit: "Map data © OpenStreetMap contributors", legendRiver: c.legendRiver, legendRoad: c.legendRoad }}
           />
         </Reveal>
-      </section>
-
-      <section className="band-dark mt-16 bg-navy py-16 text-[#eadcc6] sm:py-20">
-        <div className="mx-auto max-w-[1240px] px-5">
-          <Reveal className="max-w-2xl">
-            <p className="eyebrow">{c.plansEyebrow}</p>
-            <h2 className="mt-1 text-[30px] text-white sm:text-[40px]">{c.plansTitle}</h2>
-            <p className="mt-3 text-[17px] opacity-90">{c.plansLead}</p>
-          </Reveal>
-          <ul className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {PLANS.map((plan, i) => (
-              <Reveal as="li" key={plan.slug} d={i % 3}>
-                <div className="card flex h-full flex-col p-6">
-                  <span className="w-fit rounded-full bg-tint px-3 py-1 text-[12px] font-bold text-brand-deep">{plan.length[locale]}</span>
-                  <h3 className="mt-3 text-[22px]">{plan.title[locale]}</h3>
-                  <p className="mt-1.5 text-[15px] text-ink-soft">{plan.lead[locale]}</p>
-                  <ol className="mt-4 space-y-2" aria-label={c.stops}>
-                    {plan.stops.flatMap((slug, n) => {
-                      const pl = placeBySlug(slug);
-                      return pl ? [
-                        <li key={slug}>
-                          <Link href={`/${locale}/area/${slug}`} className="flex min-h-11 items-center gap-3 rounded-xl bg-canvas px-3 py-2 hover:bg-tint">
-                            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand text-[13px] font-bold text-white">{n + 1}</span>
-                            <span className="min-w-0 flex-1 text-[15px] font-semibold">{fr ? pl.nameFr ?? pl.name : pl.name}</span>
-                            <span className="flex shrink-0 items-center gap-1 text-[13px] text-ink-soft"><Icon name="car" size={14} /> {driveLabel(pl.drive, locale)}</span>
-                          </Link>
-                        </li>,
-                      ] : [];
-                    })}
-                  </ol>
-                </div>
-              </Reveal>
-            ))}
-          </ul>
-        </div>
       </section>
 
       <section id="places" className="mx-auto mt-14 max-w-[1240px] scroll-mt-24 px-5">

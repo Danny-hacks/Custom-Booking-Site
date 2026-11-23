@@ -7,16 +7,16 @@ import { PostCard } from "@/components/PostCard";
 import { Reveal } from "@/components/Motion";
 
 const COPY = {
-  en: { title: "Journal", h1: "Discovering the Ségala", lead: "Ideas for your stay: things to do around the estate, where to swim, what to eat and how to spend a rainy day.", none: "Articles are coming soon.", band: "Plan your stay", bandText: "The whole estate for your group, in the middle of all of this." },
-  fr: { title: "Journal", h1: "Découvrir le Ségala", lead: "Des idées pour votre séjour : que faire autour du domaine, où se baigner, que manger et comment occuper un jour de pluie.", none: "Les articles arrivent bientôt.", band: "Préparez votre séjour", bandText: "Le domaine entier pour votre groupe, au cœur de tout cela." },
+  en: { title: "Guides", h1: "Discovering the Ségala", lead: "Ideas for your stay: things to do around the estate, where to swim, what to eat and how to spend a rainy day.", none: "Articles are coming soon.", band: "Plan your stay", bandText: "The whole estate for your group, in the middle of all of this." },
+  fr: { title: "Guides", h1: "Découvrir le Ségala", lead: "Des idées pour votre séjour : que faire autour du domaine, où se baigner, que manger et comment occuper un jour de pluie.", none: "Les articles arrivent bientôt.", band: "Préparez votre séjour", bandText: "Le domaine entier pour votre groupe, au cœur de tout cela." },
 };
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/journal">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[locale]/guides">): Promise<Metadata> {
   const locale = (await params).locale as Locale;
-  return { title: COPY[locale].title, description: COPY[locale].lead, alternates: { languages: { en: "/en/journal", fr: "/fr/journal" } } };
+  return { title: COPY[locale].title, description: COPY[locale].lead, alternates: { languages: { en: "/en/guides", fr: "/fr/guides" } } };
 }
 
-export default async function JournalPage({ params }: PageProps<"/[locale]/journal">) {
+export default async function JournalPage({ params }: PageProps<"/[locale]/guides">) {
   const locale = (await params).locale as Locale;
   const c = COPY[locale];
   const [posts, p] = await Promise.all([livePosts(locale), getFeatured()]);

@@ -2,7 +2,7 @@ import { PostForm } from "@/components/admin/PostForm";
 
 export const metadata = { title: "New article" };
 
-export default async function NewPost({ searchParams }: PageProps<"/admin/journal/new">) {
+export default async function NewPost({ searchParams }: PageProps<"/admin/guides/new">) {
   const sp = await searchParams;
   return (
     <div>

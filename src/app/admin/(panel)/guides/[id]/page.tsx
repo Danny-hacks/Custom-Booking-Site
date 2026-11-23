@@ -5,7 +5,7 @@ import { deletePost } from "../../../actions";
 
 export const metadata = { title: "Edit article" };
 
-export default async function EditPost({ params, searchParams }: PageProps<"/admin/journal/[id]">) {
+export default async function EditPost({ params, searchParams }: PageProps<"/admin/guides/[id]">) {
   const { id } = await params;
   const sp = await searchParams;
   const p = await db.post.findUnique({ where: { id } });

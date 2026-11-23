@@ -289,12 +289,12 @@ export async function deleteReview(id: string) {
   redirect("/admin/reviews");
 }
 
-/* ───────── Journal ───────── */
-/** Creates or updates a journal article. The cover is an uploaded photo, one already on the site, or the one it had before. */
+/* ───────── Guides ───────── */
+/** Creates or updates a guides article. The cover is an uploaded photo, one already on the site, or the one it had before. */
 export async function savePost(id: string | null, f: FormData) {
   await requireAdmin();
   const titleEn = s(f, "titleEn"), bodyEn = s(f, "bodyEn");
-  const back = id ? `/admin/journal/${id}` : "/admin/journal/new";
+  const back = id ? `/admin/guides/${id}` : "/admin/guides/new";
   if (!titleEn || !bodyEn) redirect(`${back}?err=1`);
 
   let slug = slugify(s(f, "slug") || titleEn) || "article";
@@ -304,7 +304,7 @@ export async function savePost(id: string | null, f: FormData) {
   const existing = id ? await db.post.findUnique({ where: { id } }) : null;
   let cover = existing?.cover ?? "";
   const file = f.get("coverFile");
-  const uploaded = file instanceof File && file.size ? await saveImage("journal", file) : null;
+  const uploaded = file instanceof File && file.size ? await saveImage("guides", file) : null;
   if (uploaded) cover = uploaded;
   else if (s(f, "coverChoice") === "none") cover = "";
   else if (s(f, "coverChoice")) cover = s(f, "coverChoice");
@@ -328,7 +328,7 @@ export async function savePost(id: string | null, f: FormData) {
   if (id) await db.post.update({ where: { id }, data });
   else await db.post.create({ data });
   revalidatePath("/", "layout");
-  redirect("/admin/journal");
+  redirect("/admin/guides");
 }
 
 export async function togglePost(id: string) {
@@ -342,7 +342,7 @@ export async function deletePost(id: string) {
   await requireAdmin();
   await db.post.delete({ where: { id } }).catch(() => {});
   revalidatePath("/", "layout");
-  redirect("/admin/journal");
+  redirect("/admin/guides");
 }
 
 /** Sends a real test message to the owner address so email settings can be checked in one click. */

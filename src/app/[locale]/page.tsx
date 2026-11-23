@@ -259,10 +259,10 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
         <section className="mx-auto mt-24 max-w-[1240px] px-5">
           <Reveal className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="eyebrow">Journal</p>
+              <p className="eyebrow">Guides</p>
               <h2 className="mt-1 text-[30px] sm:text-[40px]">{fr ? "Idées pour votre séjour" : "Ideas for your stay"}</h2>
             </div>
-            <Link href={`/${locale}/journal`} className="font-bold text-brand hover:underline">{fr ? "Tous les articles" : "All articles"} →</Link>
+            <Link href={`/${locale}/guides`} className="font-bold text-brand hover:underline">{fr ? "Tous les articles" : "All articles"} →</Link>
           </Reveal>
           <ul className="mt-8 grid gap-6 md:grid-cols-3">
             {posts.map((post, i) => (

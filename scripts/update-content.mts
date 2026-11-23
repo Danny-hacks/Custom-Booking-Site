@@ -46,9 +46,9 @@ if ((await db.review.count({ where: { NOT: { id: { startsWith: "testimonial-" } 
   await db.review.deleteMany({ where: { sample: true } });
   console.log(`placeholder testimonials in place (${TESTIMONIALS.length})`);
 }
-// starter Journal articles, only while the Journal is empty
+// starter Guides articles, only while the Guides is empty
 if ((await db.post.count()) === 0) {
   for (const p of STARTER_POSTS) await db.post.create({ data: { ...p, published: true, publishedAt: new Date(p.publishedAt) } });
-  console.log(`starter journal articles added (${STARTER_POSTS.length})`);
+  console.log(`starter guides articles added (${STARTER_POSTS.length})`);
 }
 await db.$disconnect();

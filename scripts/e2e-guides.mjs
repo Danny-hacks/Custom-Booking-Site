@@ -1,6 +1,6 @@
-// Journal and things-to-do, in a real browser: public pages, owner writes and publishes an article, unsafe markup stays inert,
+// Guides and things-to-do, in a real browser: public pages, owner writes and publishes an article, unsafe markup stays inert,
 // plans and the activity filter on the Area page. Dev server on :3000.
-//   node --env-file=.env scripts/e2e-journal.mjs
+//   node --env-file=.env scripts/e2e-guides.mjs
 import { spawn } from "node:child_process";
 import { SignJWT } from "jose";
 import { PrismaClient } from "@prisma/client";
@@ -14,7 +14,7 @@ const clean = async () => { await db.post.deleteMany({ where: { titleEn: TITLE }
 await clean();
 
 const port = 9344;
-const edge = spawn("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", ["--headless=new", "--disable-gpu", `--remote-debugging-port=${port}`, "--user-data-dir=" + process.env.TEMP + "/lb-journal-profile", "about:blank"], { stdio: "ignore" });
+const edge = spawn("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", ["--headless=new", "--disable-gpu", `--remote-debugging-port=${port}`, "--user-data-dir=" + process.env.TEMP + "/lb-guides-profile", "about:blank"], { stdio: "ignore" });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let target; for (let i = 0; i < 40 && !target; i++) { try { target = await (await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, { method: "PUT" })).json(); } catch { await sleep(300); } }
 const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
@@ -31,30 +31,30 @@ const go = async (url, as) => {
 };
 await send("Page.enable"); await send("Network.enable"); await send("Runtime.enable");
 
-// public journal
-await go("http://localhost:3000/en/journal");
-const cards = await ev(`document.querySelectorAll('main ul > li a[href^="/en/journal/"]').length`);
-step(cards === 4, `journal lists the 4 starter articles (${cards})`);
-await go("http://localhost:3000/en/journal/first-weekend-in-the-segala");
+// public guides
+await go("http://localhost:3000/en/guides");
+const cards = await ev(`document.querySelectorAll('main ul > li a[href^="/en/guides/"]').length`);
+step(cards === 4, `guides lists the 4 starter articles (${cards})`);
+await go("http://localhost:3000/en/guides/first-weekend-in-the-segala");
 step((await ev(`document.querySelector('h1')?.textContent`)) === "A first weekend in the Ségala", "article page shows its title");
 step((await ev(`document.querySelectorAll('article h2').length`)) === 3, "headings from the article text are rendered");
 step((await ev(`document.querySelectorAll('article ul li').length`)) === 3, "bullet list is rendered");
 step(await ev(`!!document.querySelector('article a[href="/en/area/naucelle"]')`), "inline link to a place page works");
 step((await ev(`document.querySelectorAll('a[href^="/en/area/"]').length`)) >= 5, "places mentioned are listed under the article");
-await go("http://localhost:3000/fr/journal/first-weekend-in-the-segala");
+await go("http://localhost:3000/fr/guides/first-weekend-in-the-segala");
 step((await ev(`document.querySelector('h1')?.textContent`)) === "Un premier week-end en Ségala", "French version of the article");
-await go("http://localhost:3000/en/journal/does-not-exist");
+await go("http://localhost:3000/en/guides/does-not-exist");
 step(/not found|404/i.test(await ev(`document.body.innerText`)), "unknown article shows the branded 404");
 
 // home and navigation
 await go("http://localhost:3000/en");
 step(await ev(`document.body.innerText.includes("Ideas for your stay")`), "home page shows the latest articles");
-step(await ev(`!!document.querySelector('header a[href="/en/journal"]')`), "Journal is in the header");
+step(await ev(`!!document.querySelector('header a[href="/en/guides"]')`), "Guides is in the header");
 const sm = await (await fetch("http://localhost:3000/sitemap.xml")).text();
-step(sm.includes("/en/journal/first-weekend-in-the-segala") && sm.includes("/fr/area/naucelle"), "sitemap lists articles and places");
+step(sm.includes("/en/guides/first-weekend-in-the-segala") && sm.includes("/fr/area/naucelle"), "sitemap lists articles and places");
 
 // owner writes an article
-await go("http://localhost:3000/admin/journal/new", true);
+await go("http://localhost:3000/admin/guides/new", true);
 await ev(`(()=>{const f=document.querySelector('[name=titleEn]').form;const set=(n,v)=>{f.querySelector('[name="'+n+'"]').value=v};
 set('titleEn',${JSON.stringify(TITLE)});set('excerptEn','A short summary.');
 set('bodyEn',${JSON.stringify("## First heading\n\nHello **world** with <script>window.__pwned=1</script> and [bad](javascript:window.__pwned=1) and [good](https://example.com).\n\n- one\n- two")});
@@ -62,10 +62,10 @@ f.querySelector('input[value="naucelle"]').click();f.querySelector('input[name=p
 await sleep(5000);
 const row = await db.post.findFirst({ where: { titleEn: TITLE } });
 step(!!row && row.published && row.places === "naucelle" && row.slug === "e2e-test-article-about-swimming", `article saved and published (slug ${row?.slug})`);
-await go("http://localhost:3000/admin/journal", true);
+await go("http://localhost:3000/admin/guides", true);
 step((await ev(`document.body.innerText.includes(${JSON.stringify(TITLE)})`)), "admin list shows the article");
 
-await go(`http://localhost:3000/en/journal/${row.slug}`);
+await go(`http://localhost:3000/en/guides/${row.slug}`);
 step((await ev(`document.querySelector('h1')?.textContent`)) === TITLE, "new article is public");
 step(!(await ev(`!!window.__pwned`)) && !(await ev(`!!document.querySelector('article script')`)), "script tag in the text stays inert");
 step(await ev(`document.querySelector('article').innerText.includes('<script>')`), "markup is shown as plain text");
@@ -73,16 +73,15 @@ step(!(await ev(`!!document.querySelector('article a[href^="javascript"]')`)), "
 step(await ev(`document.querySelector('article a[href="https://example.com"]')?.getAttribute('rel')==='noopener noreferrer'`), "external links open safely");
 
 // unpublish hides it
-await go("http://localhost:3000/admin/journal", true);
+await go("http://localhost:3000/admin/guides", true);
 await ev(`[...document.querySelectorAll('li')].find(l=>l.innerText.includes(${JSON.stringify(TITLE)})).querySelector('form button').click()`);
 await sleep(3500);
 step((await db.post.findFirst({ where: { titleEn: TITLE } }))?.published === false, "unpublish works");
-await go(`http://localhost:3000/en/journal/${row.slug}`);
+await go(`http://localhost:3000/en/guides/${row.slug}`);
 step(/not found|404/i.test(await ev(`document.body.innerText`)), "unpublished article is hidden");
 
 // things to do on the area page
 await go("http://localhost:3000/en/area");
-step((await ev(`document.querySelectorAll('section.band-dark ol').length`)) === 5, "5 ready-made day plans are shown");
 await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Rainy day').click()`);
 await sleep(400);
 const rainy = await ev(`document.querySelectorAll('#places ul > li').length`);

@@ -12,7 +12,7 @@ import { PostCard, postDate, readingMinutes } from "@/components/PostCard";
 import { Reveal } from "@/components/Motion";
 import { RichText } from "@/components/RichText";
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/journal/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[locale]/guides/[slug]">): Promise<Metadata> {
   const { locale: l, slug } = await params;
   const locale = l as Locale;
   const post = await livePost(slug, locale);
@@ -20,12 +20,12 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/journal/
   return {
     title: post.title,
     description: post.excerpt || undefined,
-    alternates: { languages: { en: `/en/journal/${slug}`, fr: `/fr/journal/${slug}` } },
+    alternates: { languages: { en: `/en/guides/${slug}`, fr: `/fr/guides/${slug}` } },
     openGraph: { type: "article", title: post.title, description: post.excerpt || undefined, ...(post.cover ? { images: [post.cover] } : {}) },
   };
 }
 
-export default async function PostPage({ params }: PageProps<"/[locale]/journal/[slug]">) {
+export default async function PostPage({ params }: PageProps<"/[locale]/guides/[slug]">) {
   const { locale: l, slug } = await params;
   const locale = l as Locale;
   const fr = locale === "fr";
@@ -55,8 +55,8 @@ export default async function PostPage({ params }: PageProps<"/[locale]/journal/
           {post.cover ? <Image src={post.cover} alt="" fill priority sizes="100vw" className="-z-10 object-cover" /> : <div className="absolute inset-0 -z-10 grid place-items-center text-sun-bright/40"><Icon name="leaf" size={120} weight="duotone" /></div>}
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-navy/90 via-navy/35 to-transparent" />
           <div className="mx-auto w-full max-w-[1240px] px-5 pb-9 sm:pb-12">
-            <Link href={`/${locale}/journal`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white/90 hover:underline">
-              <Icon name="arrow" size={16} className="rotate-180" /> Journal
+            <Link href={`/${locale}/guides`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white/90 hover:underline">
+              <Icon name="arrow" size={16} className="rotate-180" /> Guides
             </Link>
             <h1 className="rise mt-1 max-w-3xl text-[34px] text-white sm:text-[50px]">{post.title}</h1>
             <p className="rise mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-white [--d:1]">

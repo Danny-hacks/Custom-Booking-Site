@@ -13,7 +13,7 @@ export function PostCard({ post, locale }: { post: PostView; locale: Locale }) {
   const fr = locale === "fr";
   const cat = POST_CATEGORIES.find((c) => c.key === post.category)?.label[locale];
   return (
-    <Link href={`/${locale}/journal/${post.slug}`} className="card lift zoom flex h-full flex-col overflow-hidden">
+    <Link href={`/${locale}/guides/${post.slug}`} className="card lift zoom flex h-full flex-col overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden bg-tint">
         {post.cover ? (
           <Image src={post.cover} alt="" fill sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 100vw" className="object-cover" />

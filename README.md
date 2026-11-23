@@ -47,10 +47,10 @@ The Area page is the guide to the Ségala and the wider Aveyron. Every place liv
 
 **Drive times** were computed with OpenStreetMap routing from the centre of Centrès and rounded. Re-check them from the exact address if you want to be precise.
 
-## Journal and things to do
-- **Journal** (`/journal`): articles the owners write in Admin → Journal (English + French, cover photo, places mentioned, draft/scheduled/published). Article text is plain text with `## headings`, `- bullets`, `**bold**` and `[links](url)`; it is rendered without HTML, so nothing pasted in can run as code. Four starter articles are added once by `scripts/seed-posts.mts` (only while the Journal is empty).
+## Guides and things to do
+- **Guides** (`/guides`): articles the owners write in Admin → Guides (English + French, cover photo, places mentioned, draft/scheduled/published). Article text is plain text with `## headings`, `- bullets`, `**bold**` and `[links](url)`; it is rendered without HTML, so nothing pasted in can run as code. Four starter articles are added once by `scripts/seed-posts.mts` (only while the Guides is empty).
 - **Things to do**: every place in `src/lib/area.ts` has activity tags (rainy day, with children, swim, walks, free, taste, history & art) that drive the filter on the Area page, plus ready-made day plans (`PLANS`). Place pages show their position with a link to OpenStreetMap and directions from the estate.
-- **After pulling this update on an existing database**: run `npx prisma db push` once (adds the Post table), then `npx tsx scripts/update-content.mts` (adds the starter articles if the Journal is empty).
+- **Database updates are automatic on Vercel**: the production build runs `scripts/sync-db.mjs`, which applies new tables/columns (`prisma db push`, additive only; it fails the build rather than delete data) and adds the starter guides if there are none. It is skipped locally and on preview deployments. To do the same by hand against another database: `npx prisma db push` then `npx tsx scripts/update-content.mts`.
 
 ## Area photos
 The Area page photos are from Wikimedia Commons (CC BY-SA / public domain). Authors and licences are in `src/lib/area-credits.json` and printed on the Area page and on each place page, as the licences require. Places without a photo show an icon.
