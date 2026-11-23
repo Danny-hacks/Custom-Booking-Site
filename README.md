@@ -52,8 +52,8 @@ The Area page is the guide to the Ségala and the wider Aveyron. Every place liv
 - **Things to do**: every place in `src/lib/area.ts` has activity tags (rainy day, with children, swim, walks, free, taste, history & art) that drive the filter on the Area page, plus ready-made day plans (`PLANS`). Place pages show their position with a link to OpenStreetMap and directions from the estate.
 - **Database updates are automatic on Vercel**: the production build runs `scripts/sync-db.mjs`, which applies new tables/columns (`prisma db push`, additive only; it fails the build rather than delete data) and adds the starter guides if there are none. It is skipped locally and on preview deployments. To do the same by hand against another database: `npx prisma db push` then `npx tsx scripts/update-content.mts`.
 
-## Area photos
-The Area page photos are from Wikimedia Commons (CC BY-SA / public domain). Authors and licences are in `src/lib/area-credits.json` and printed on the Area page and on each place page, as the licences require. Places without a photo show an icon.
+## Area photos and credits
+The area photos are from Wikimedia Commons (CC BY-SA / public domain). Authors and licences are in `src/lib/area-credits.json` and listed on the **Photo credits** page (`/credits`, linked from the footer); each place page also carries a small credit caption on its picture. Small square copies (240 px) for the map and lists live in `public/img/area/thumbs/`: when you add or replace an area photo, regenerate its thumbnail too. The map skeleton (rivers, roads, borders, lakes) is OpenStreetMap data baked into `src/lib/map-geo.json` and credited on the map and the credits page.
 
 ## QA scripts (dev server running)
 - `npx tsx --env-file=.env scripts/flow-test.mts`: booking logic (holds, overlaps, refunds, iCal).

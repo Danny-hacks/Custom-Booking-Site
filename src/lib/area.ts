@@ -363,3 +363,14 @@ export const driveLabel = (min: number, locale: Locale) => {
 
 /** The estate (centre of Centrès), the map's centre. */
 export const ESTATE = { lat: 44.1639, lon: 2.4076 };
+
+/** Small square copy of a place photo (240 px), used on the map, in lists and cards. Plain static files, so nothing depends on an image service. */
+export const areaThumb = (photo: string) => `/img/area/thumbs/${photo}.jpg`;
+
+/** Where each licence is written down, for the credits page. */
+export const LICENSE_URL: Record<string, string> = {
+  "CC BY-SA 4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "CC BY-SA 3.0": "https://creativecommons.org/licenses/by-sa/3.0/",
+  "CC BY-SA 2.0": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "Public domain": "https://creativecommons.org/publicdomain/mark/1.0/",
+};

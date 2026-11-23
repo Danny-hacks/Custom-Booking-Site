@@ -30,13 +30,19 @@ step(await ev(`[...document.querySelectorAll('svg a.map-pin')].every(a=>/\\/en\\
 const overlap = await ev(`(()=>{const t=[...document.querySelectorAll('svg a.map-pin text')].map(e=>e.getBoundingClientRect());let n=0;for(let i=0;i<t.length;i++)for(let j=i+1;j<t.length;j++){const a=t[i],b=t[j];if(a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1)n++}return n})()`);
 step(overlap === 0, `no overlapping map labels in the wide view (${overlap} overlaps)`);
 
-const total = await ev(`document.querySelectorAll('#places ul > li').length`);
-step(total === 18, `the list has all 18 places (${total})`);
-await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Food & markets').click()`);
+const first = await ev(`document.querySelectorAll('#places ul > li').length`);
+step(first === 8, `the list starts with 8 places (${first})`);
+await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent.startsWith('Show all')).click()`);
 await sleep(400);
-const food = await ev(`document.querySelectorAll('#places ul > li').length`);
-step(food === 1, `"Food & markets" filter narrows the list (${food})`);
-await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='All').click()`);
+const total = await ev(`document.querySelectorAll('#places ul > li').length`);
+step(total === 18, `"Show all" reveals all 18 places (${total})`);
+await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Taste & shop').click()`);
+await sleep(500);
+const taste = await ev(`document.querySelectorAll('#places ul > li').length`);
+const tastePins = await ev(`document.querySelectorAll('svg a.map-pin').length`);
+step(taste >= 2 && taste <= 6, `"Taste & shop" filter narrows the list (${taste})`);
+step(tastePins <= taste && tastePins >= 1, `the map follows the filter (${tastePins} pins)`);
+await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Everything').click()`);
 
 // dropdown: set the value the way a user's choice does (React listens for the native change event)
 await ev(`(()=>{const s=document.querySelector('#places select');const set=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set;set.call(s,'naucelle');s.dispatchEvent(new Event('change',{bubbles:true}))})()`);
@@ -53,7 +59,7 @@ step((await ev(`document.body.innerText`)).includes("Bon à savoir"), "French pl
 
 await go("http://localhost:3000/en/area", 390);
 step((await ev(`document.documentElement.scrollWidth <= window.innerWidth + 1`)), "no sideways scroll on a phone");
-const px = await ev(`(()=>{const t=document.querySelector('svg a.map-pin text');const r=t.getBoundingClientRect();return Math.round(parseFloat(getComputedStyle(t).fontSize)*(r.width/t.getBBox().width))})()`);
+const px = await ev(`(()=>{const t=[...document.querySelectorAll('svg a.map-pin text')].find(x=>x.getBoundingClientRect().width>0);const r=t.getBoundingClientRect();return Math.round(parseFloat(getComputedStyle(t).fontSize)*(r.width/t.getBBox().width))})()`);
 step(px >= 10, `map labels are readable on a phone (~${px}px)`);
 
 ws.close(); edge.kill();

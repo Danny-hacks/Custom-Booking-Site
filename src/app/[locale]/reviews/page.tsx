@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
-import { DarkBand } from "@/components/DarkBand";
+import { CtaCard } from "@/components/CtaCard";
 import { getFeatured } from "@/lib/queries";
 import { ReviewCard, Stars } from "@/components/Reviews";
 import { RATING, liveReviews } from "@/lib/reviews";
@@ -42,7 +42,7 @@ export default async function ReviewsPage({ params }: PageProps<"/[locale]/revie
         <Link href={`/${locale}/account`} className="btn mt-5">{fr ? "Laisser un avis" : "Leave a review"} <Icon name="arrow" size={18} /></Link>
       </div>
      </div>
-     <DarkBand locale={locale} slug={p?.slug} title={fr ? "Prêts à réserver ?" : "Ready to book?"} text={fr ? "Réservez en direct, sans frais de plateforme." : "Book direct, with no platform fees."} />
+     <CtaCard locale={locale} slug={p?.slug} title={fr ? "Prêts à réserver ?" : "Ready to book?"} text={fr ? "Réservez en direct, sans frais de plateforme." : "Book direct, with no platform fees."} />
     </main>
   );
 }

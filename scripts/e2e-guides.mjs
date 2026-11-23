@@ -83,16 +83,21 @@ step(/not found|404/i.test(await ev(`document.body.innerText`)), "unpublished ar
 // things to do on the area page
 await go("http://localhost:3000/en/area");
 await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Rainy day').click()`);
-await sleep(400);
+await sleep(500);
 const rainy = await ev(`document.querySelectorAll('#places ul > li').length`);
 step(rainy >= 4 && rainy <= 7, `"Rainy day" filter narrows the list (${rainy})`);
-await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Villages & towns').click()`);
-await sleep(400);
-const both = await ev(`document.querySelectorAll('#places ul > li').length`);
-step(both >= 1 && both < rainy, `activity and type filters combine (${both})`);
-await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Food & markets').click()`);
-await sleep(400);
-step((await ev(`document.querySelectorAll('#places ul > li').length`)) === 0 && (await ev(`document.body.innerText.includes('Nothing matches both choices')`)), "a combination with no match shows a helpful message");
+await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Swim & water').click()`);
+await sleep(500);
+const swim = await ev(`document.querySelectorAll('#places ul > li').length`);
+step(swim >= 2 && swim <= 6, `"Swim & water" shows its own places (${swim})`);
+
+// photo credits live on their own page
+await go("http://localhost:3000/en/credits");
+step((await ev(`document.querySelector('h1')?.textContent`)) === "Photo credits", "credits page exists");
+step((await ev(`document.querySelectorAll('main ul li').length`)) >= 16, "credits page lists every area photo");
+step(await ev(`!!document.querySelector('footer a[href="/en/credits"]')`), "footer links to the credits page");
+await go("http://localhost:3000/en/area");
+step(!(await ev(`document.body.innerText.includes('Krzysztof Golik')`)), "area page no longer carries the credit block");
 
 await clean(); await db.$disconnect(); ws.close(); edge.kill();
 process.exit(process.exitCode ?? 0);

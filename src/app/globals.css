@@ -258,6 +258,14 @@ html:has(dialog.menu-sheet[open]) { overflow: hidden; }
 .map-pin .map-label-hover { display: none; }
 .map-pin:hover .map-label-hover, .map-pin:focus-visible .map-label-hover { display: inline; }
 
-/* a dark band that ends the page sits flush against the (dark) footer; a small credit line keeps a short gap */
-#content:has(main > .band-dark:last-child) + footer { margin-top: 0; }
-#content:has(.photo-credit) + footer { margin-top: 2.5rem; }
+
+/* sleek motion for the area guide */
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fade-up 0.5s var(--ease-out) both; }
+@keyframes pin-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+.map-pop { animation: pin-in 0.5s var(--ease-spring) both; transform-box: fill-box; transform-origin: center; }
+.map-pin[data-active="true"] .map-dot { transform: scale(1.3); }
+.map-pin[data-active="true"] circle.map-dot { fill: var(--brand-deep); }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+@media (prefers-reduced-motion: reduce) { .fade-up, .map-pop { animation: none; } }

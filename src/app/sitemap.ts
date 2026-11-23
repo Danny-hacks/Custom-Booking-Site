@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteBase();
   const props = await db.property.findMany({ where: { status: "published" }, select: { slug: true } }).catch(() => []);
   const posts = await db.post.findMany({ where: { published: true, publishedAt: { lte: new Date() } }, select: { slug: true } }).catch(() => []);
-  const paths = ["", "/properties", "/offers", "/area", ...PLACES.map((x) => `/area/${x.slug}`), "/guides", ...posts.map((x) => `/guides/${x.slug}`), "/reviews", "/faq", "/contact", "/legal/terms", "/legal/privacy", ...props.map((p) => `/properties/${p.slug}`)];
+  const paths = ["", "/properties", "/offers", "/area", ...PLACES.map((x) => `/area/${x.slug}`), "/guides", ...posts.map((x) => `/guides/${x.slug}`), "/reviews", "/faq", "/contact", "/legal/terms", "/legal/privacy", "/credits", ...props.map((p) => `/properties/${p.slug}`)];
   return paths.flatMap((p) =>
     (["en", "fr"] as const).map((l) => ({
       url: `${base}/${l}${p}`,

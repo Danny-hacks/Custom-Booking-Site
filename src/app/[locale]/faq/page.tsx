@@ -2,7 +2,7 @@ import { titleMeta } from "@/lib/meta";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/property";
 import { Icon } from "@/components/Icon";
-import { DarkBand } from "@/components/DarkBand";
+import { CtaCard } from "@/components/CtaCard";
 import { getFeatured } from "@/lib/queries";
 
 export const generateMetadata = titleMeta("faq");
@@ -33,7 +33,7 @@ export default async function Faq({ params }: PageProps<"/[locale]/faq">) {
         ))}
       </div>
      </div>
-     <DarkBand locale={locale} slug={p?.slug} title={fr ? "Une autre question ?" : "Still have a question?"} text={fr ? "Écrivez-nous, nous répondons en général dans l’heure." : "Write to us. We usually reply within the hour."} />
+     <CtaCard locale={locale} slug={p?.slug} title={fr ? "Une autre question ?" : "Still have a question?"} text={fr ? "Écrivez-nous, nous répondons en général dans l’heure." : "Write to us. We usually reply within the hour."} />
     </main>
   );
 }

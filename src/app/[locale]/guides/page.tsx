@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getFeatured } from "@/lib/queries";
 import { livePosts } from "@/lib/journal";
 import type { Locale } from "@/lib/property";
-import { DarkBand } from "@/components/DarkBand";
+import { CtaCard } from "@/components/CtaCard";
 import { PostCard } from "@/components/PostCard";
 import { Reveal } from "@/components/Motion";
 
@@ -36,7 +36,7 @@ export default async function JournalPage({ params }: PageProps<"/[locale]/guide
           </ul>
         )}
       </div>
-      <DarkBand locale={locale} slug={p?.slug} title={c.band} text={c.bandText} />
+      <CtaCard locale={locale} slug={p?.slug} title={c.band} text={c.bandText} />
     </main>
   );
 }

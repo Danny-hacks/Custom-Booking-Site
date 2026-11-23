@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { t } from "@/lib/i18n";
 import { getFeatured } from "@/lib/queries";
-import { ACTIVITIES, AREA_CREDITS, CATEGORIES, ESTATE, PLACES, driveLabel, placeBySlug } from "@/lib/area";
+import { ACTIVITIES, AREA_CREDITS, ESTATE, PLACES, driveLabel, placeBySlug } from "@/lib/area";
 import type { Locale } from "@/lib/property";
-import { DarkBand } from "@/components/DarkBand";
+import { CtaCard } from "@/components/CtaCard";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Motion";
 
@@ -37,7 +37,6 @@ export default async function PlacePage({ params }: PageProps<"/[locale]/area/[s
   const d = t(locale);
   const p = await getFeatured();
   const name = fr ? pl.nameFr ?? pl.name : pl.name;
-  const category = CATEGORIES.find((c) => c.key === pl.category)?.label[locale];
   const near = PLACES.filter((x) => x.slug !== pl.slug)
     .sort((a, b) => Math.abs(a.drive - pl.drive) - Math.abs(b.drive - pl.drive))
     .slice(0, 3);
@@ -63,6 +62,11 @@ export default async function PlacePage({ params }: PageProps<"/[locale]/area/[s
             <div className="absolute inset-0 -z-10 grid place-items-center text-sun-bright/40"><Icon name={pl.icon} size={120} weight="duotone" /></div>
           )}
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-navy/90 via-navy/35 to-transparent" />
+          {credit && (
+            <Link href={`/${locale}/credits`} className="absolute bottom-2 right-4 z-10 text-[11px] text-white/70 hover:text-white hover:underline">
+              {fr ? "Photo" : "Photo"}: {credit.author} · {credit.license}
+            </Link>
+          )}
           <div className="mx-auto w-full max-w-[1240px] px-5 pb-9 sm:pb-12">
             <Link href={`/${locale}/area#places`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white/90 hover:underline">
               <Icon name="arrow" size={16} className="rotate-180" /> {d.area.title}
@@ -71,7 +75,6 @@ export default async function PlacePage({ params }: PageProps<"/[locale]/area/[s
             <div className="rise mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-white [--d:1]">
               <span className="rounded-full bg-white/15 px-3 py-1 backdrop-blur">{pl.tag[locale]}</span>
               <span className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 backdrop-blur"><Icon name="car" size={15} /> {driveLabel(pl.drive, locale)}{pl.drive > 5 && (fr ? " depuis Centrès" : " from Centrès")}</span>
-              {category && <span className="rounded-full bg-white/15 px-3 py-1 backdrop-blur">{category}</span>}
             </div>
           </div>
         </div>
@@ -96,7 +99,6 @@ export default async function PlacePage({ params }: PageProps<"/[locale]/area/[s
           <aside className="card p-6">
             <h2 className="text-[19px]">{fr ? "Bon à savoir" : "Good to know"}</h2>
             <ul className="mt-3 space-y-2.5 text-[15px] text-ink-soft">
-              <li className="flex gap-2.5"><Icon name="car" size={18} className="mt-0.5 shrink-0 text-brand" /> {driveLabel(pl.drive, locale)}{pl.drive > 5 && (fr ? " en voiture depuis Centrès (approximatif)" : " by car from Centrès (approximate)")}</li>
               {(pl.tips?.[locale] ?? []).map((x) => (
                 <li key={x} className="flex gap-2.5"><Icon name="check" size={18} weight="bold" className="mt-0.5 shrink-0 text-leaf" /> {x}</li>
               ))}
@@ -138,20 +140,13 @@ export default async function PlacePage({ params }: PageProps<"/[locale]/area/[s
         </ul>
       </section>
 
-      <DarkBand
+      <CtaCard
         locale={locale}
         slug={p?.slug}
         title={fr ? "Séjournez au cœur du Ségala" : "Stay in the heart of the Ségala"}
         text={fr ? "Le domaine entier pour votre groupe, à quelques minutes des plus beaux sites du pays." : "The whole estate for your group, a few minutes from the best of the country."}
       />
 
-      {credit && pl.photo && (
-        <section className="photo-credit mx-auto max-w-[1240px] px-5">
-          <p className="mt-6 text-xs text-ink-soft">
-            {fr ? "Photo : " : "Photo: "}<a href={credit.url} target="_blank" rel="noopener noreferrer" className="underline">{credit.author}</a> ({credit.license}), Wikimedia Commons.
-          </p>
-        </section>
-      )}
     </main>
   );
 }

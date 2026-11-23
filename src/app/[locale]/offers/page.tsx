@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/property";
 import { OfferCard } from "@/components/OfferCard";
 import { Reveal } from "@/components/Motion";
-import { DarkBand } from "@/components/DarkBand";
+import { CtaCard } from "@/components/CtaCard";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/offers">): Promise<Metadata> {
   const locale = (await params).locale as Locale;
@@ -35,7 +35,7 @@ export default async function OffersPage({ params }: PageProps<"/[locale]/offers
         </ul>
       )}
      </div>
-     <DarkBand locale={locale} slug={p?.slug} title={locale === "fr" ? "Le domaine entier, rien que pour vous" : "The whole estate, just for your group"} text={locale === "fr" ? "Choisissez vos dates et voyez le prix tout de suite." : "Pick your dates and see the price straight away."} />
+     <CtaCard locale={locale} slug={p?.slug} title={locale === "fr" ? "Le domaine entier, rien que pour vous" : "The whole estate, just for your group"} text={locale === "fr" ? "Choisissez vos dates et voyez le prix tout de suite." : "Pick your dates and see the price straight away."} />
     </main>
   );
 }

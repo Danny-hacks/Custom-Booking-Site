@@ -2,7 +2,6 @@ import Link from "next/link";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/property";
 import { Icon } from "./Icon";
-import { PHOTO_CREDIT } from "@/lib/brand";
 
 export function Footer({ locale }: { locale: Locale }) {
   const d = t(locale);
@@ -25,10 +24,11 @@ export function Footer({ locale }: { locale: Locale }) {
         <nav aria-label="Legal" className="grid content-start text-[15px]">
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/legal/terms`}>{d.footer.terms}</Link>
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/legal/privacy`}>{d.footer.privacy}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/credits`}>{d.footer.credits}</Link>
         </nav>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs opacity-70">
-        © {new Date().getFullYear()} La Bastide de Lestrebaldie · {d.footer.rights} · {d.footer.photos} {PHOTO_CREDIT} · <Link href={`/${locale}/area#credits`} className="underline">{d.footer.areaPhotos}</Link>
+        © {new Date().getFullYear()} La Bastide de Lestrebaldie · {d.footer.rights}
       </div>
     </footer>
   );

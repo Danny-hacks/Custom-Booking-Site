@@ -6,7 +6,7 @@ import { getFeatured } from "@/lib/queries";
 import { POST_CATEGORIES, livePost, livePosts } from "@/lib/journal";
 import { PLACES, driveLabel } from "@/lib/area";
 import type { Locale } from "@/lib/property";
-import { DarkBand } from "@/components/DarkBand";
+import { CtaCard } from "@/components/CtaCard";
 import { Icon } from "@/components/Icon";
 import { PostCard, postDate, readingMinutes } from "@/components/PostCard";
 import { Reveal } from "@/components/Motion";
@@ -100,7 +100,7 @@ export default async function PostPage({ params }: PageProps<"/[locale]/guides/[
         </section>
       )}
 
-      <DarkBand locale={locale} slug={p?.slug} title={fr ? "Séjournez au cœur du Ségala" : "Stay in the heart of the Ségala"} text={fr ? "Le domaine entier pour votre groupe, à quelques minutes des plus beaux sites du pays." : "The whole estate for your group, a few minutes from the best of the country."} />
+      <CtaCard locale={locale} slug={p?.slug} title={fr ? "Séjournez au cœur du Ségala" : "Stay in the heart of the Ségala"} text={fr ? "Le domaine entier pour votre groupe, à quelques minutes des plus beaux sites du pays." : "The whole estate for your group, a few minutes from the best of the country."} />
     </main>
   );
 }
