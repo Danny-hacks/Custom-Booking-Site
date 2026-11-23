@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { t } from "@/lib/i18n";
 import { getFeatured } from "@/lib/queries";
-import { ACTIVITIES, ESTATE, PLACES, driveLabel, placeBySlug } from "@/lib/area";
+import { ACTIVITIES, ESTATE, PLACES, driveLabel } from "@/lib/area";
 import type { Locale } from "@/lib/property";
 import { AreaExplorer } from "@/components/AreaExplorer";
 import { CtaCard } from "@/components/CtaCard";
@@ -103,28 +103,7 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
         </div>
       </section>
 
-      <section className="mx-auto mt-14 grid max-w-[1240px] gap-8 px-5 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-16">
-        <Reveal>
-          <p className="eyebrow">{c.eyebrow}</p>
-          <h2 className="mt-1 text-[30px] sm:text-[40px]">{c.title}</h2>
-          <p className="mt-4 max-w-xl text-[17px] text-ink-soft">{c.intro}</p>
-        </Reveal>
-        <Reveal d={2}>
-          <dl className="grid grid-cols-3 divide-x divide-line rounded-2xl border border-line bg-paper py-5">
-            {c.stats.map(([slug, label]) => {
-              const pl = placeBySlug(slug);
-              return (
-                <div key={slug} className="px-3 text-center sm:px-5">
-                  <dt className="serif text-[30px] leading-none text-brand sm:text-[38px]">{pl?.drive}<span className="ml-1 text-[14px] font-semibold text-ink-soft">min</span></dt>
-                  <dd className="mt-2 text-[13px] text-ink-soft">{label}</dd>
-                </div>
-              );
-            })}
-          </dl>
-        </Reveal>
-      </section>
-
-      <section id="places" className="mx-auto mt-16 max-w-[1240px] scroll-mt-24 px-5">
+      <section id="places" className="mx-auto mt-14 max-w-[1240px] scroll-mt-24 px-5">
         <Reveal className="mb-6 max-w-2xl">
           <h2 className="text-[26px] sm:text-[34px]">{c.exploreTitle}</h2>
           <p className="mt-2 text-ink-soft">{c.exploreLead}</p>
@@ -134,7 +113,7 @@ export default async function Area({ params }: PageProps<"/[locale]/area">) {
           places={cards}
           activities={ACTIVITIES.map((x) => ({ key: x.key, label: x.label[locale] }))}
           estate={{ lat: ESTATE.lat, lon: ESTATE.lon, label: c.estate }}
-          labels={{ all: c.all, jump: c.jump, jumpHint: c.jumpHint, shown: c.shown, showAll: c.showAll, none: c.none, km: c.km, near: c.near, wide: c.wide, mapAria: c.mapAria, credit: c.credit, filterAria: c.filterAria }}
+          labels={{ all: c.all, shown: c.shown, showAll: c.showAll, none: c.none, km: c.km, near: c.near, wide: c.wide, mapAria: c.mapAria, credit: c.credit, filterAria: c.filterAria }}
         />
         <p className="mt-8 text-sm text-ink-soft">
           {c.srcLead}{" "}

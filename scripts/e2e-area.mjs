@@ -44,10 +44,9 @@ step(taste >= 2 && taste <= 6, `"Taste & shop" filter narrows the list (${taste}
 step(tastePins <= taste && tastePins >= 1, `the map follows the filter (${tastePins} pins)`);
 await ev(`[...document.querySelectorAll('#places button')].find(b=>b.textContent==='Everything').click()`);
 
-// dropdown: set the value the way a user's choice does (React listens for the native change event)
-await ev(`(()=>{const s=document.querySelector('#places select');const set=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set;set.call(s,'naucelle');s.dispatchEvent(new Event('change',{bubbles:true}))})()`);
+await ev(`document.querySelector('#places ul a[href$="/area/naucelle"]').click()`);
 await sleep(5000);
-step((await ev(`location.pathname`)) === "/en/area/naucelle", `dropdown jumps to the place page (${await ev("location.pathname")})`);
+step((await ev(`location.pathname`)) === "/en/area/naucelle", `a list row opens the place page (${await ev("location.pathname")})`);
 step((await ev(`document.querySelector('h1')?.textContent`)) === "Naucelle", "place page shows its title");
 step(await ev(`!!document.querySelector('a[href="/en/area#places"]')`), "place page links back to the guide");
 

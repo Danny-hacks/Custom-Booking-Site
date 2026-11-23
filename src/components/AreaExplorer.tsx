@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AreaMap } from "@/components/AreaMap";
 import { Icon } from "@/components/Icon";
@@ -25,7 +24,7 @@ type Props = {
   places: AreaCard[];
   activities: { key: string; label: string }[];
   estate: { lat: number; lon: number; label: string };
-  labels: { all: string; jump: string; jumpHint: string; shown: string; showAll: string; none: string; km: string; near: string; wide: string; mapAria: string; credit: string; filterAria: string };
+  labels: { all: string; shown: string; showAll: string; none: string; km: string; near: string; wide: string; mapAria: string; credit: string; filterAria: string };
 };
 
 /**
@@ -33,7 +32,6 @@ type Props = {
  * lights its pin and vice versa. The list is plain links, so it works without JavaScript too.
  */
 export function AreaExplorer({ locale, places, activities, estate, labels }: Props) {
-  const router = useRouter();
   const [act, setAct] = useState("all");
   const [active, setActive] = useState<string | null>(null);
   const [all, setAll] = useState(false);
@@ -62,13 +60,6 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
           {chip("all", labels.all)}
           {activities.map((a) => chip(a.key, a.label))}
         </div>
-        <label className="block">
-          <span className="sr-only">{labels.jump}</span>
-          <select className="field" defaultValue="" aria-label={labels.jump} onChange={(e) => e.target.value && router.push(`/${locale}/area/${e.target.value}`)}>
-            <option value="" disabled>{labels.jumpHint}</option>
-            {places.map((p) => <option key={p.slug} value={p.slug}>{p.name} · {p.drive}</option>)}
-          </select>
-        </label>
       </div>
 
           <div className="mt-3">
