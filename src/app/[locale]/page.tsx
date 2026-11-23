@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getFeatured, fromPrice } from "@/lib/queries";
 import { liveOffers, offerHref } from "@/lib/offers";
 import { liveReviews } from "@/lib/reviews";
+import { livePosts } from "@/lib/journal";
+import { PostCard } from "@/components/PostCard";
 import { inCat, ph } from "@/lib/photos";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/property";
@@ -25,6 +27,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
   const fr = locale === "fr";
   const stay = `/${locale}/properties/${p.slug}`;
   const reviews = await liveReviews(locale);
+  const posts = await livePosts(locale, 3);
   const deals = (await liveOffers(locale, p.id)).filter((o) => o.showCard).slice(0, 3);
   const alt = (x: { alt_en: string; alt_fr: string }) => (fr ? x.alt_fr : x.alt_en);
   const hero = ph("outdoor", 102);
@@ -250,6 +253,24 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
         </Reveal>
        </div>
       </section>
+
+      {/* FROM THE JOURNAL */}
+      {posts.length > 0 && (
+        <section className="mx-auto mt-24 max-w-[1240px] px-5">
+          <Reveal className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="eyebrow">Journal</p>
+              <h2 className="mt-1 text-[30px] sm:text-[40px]">{fr ? "Idées pour votre séjour" : "Ideas for your stay"}</h2>
+            </div>
+            <Link href={`/${locale}/journal`} className="font-bold text-brand hover:underline">{fr ? "Tous les articles" : "All articles"} →</Link>
+          </Reveal>
+          <ul className="mt-8 grid gap-6 md:grid-cols-3">
+            {posts.map((post, i) => (
+              <Reveal as="li" key={post.id} d={i * 2}><PostCard post={post} locale={locale} /></Reveal>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* FINAL CTA */}
       <section className="mx-auto mt-24 max-w-[1240px] px-5">

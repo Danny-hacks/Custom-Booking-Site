@@ -13,6 +13,7 @@ export function Header({ locale, signedIn, slug, hasOffers }: { locale: Locale; 
     { href: stay, label: d.nav.stay, icon: "house" },
     ...(hasOffers ? [{ href: `/${locale}/offers`, label: d.offers.nav, icon: "tag", accent: true }] : []),
     { href: `/${locale}/area`, label: d.nav.area, icon: "mountains" },
+    { href: `/${locale}/journal`, label: "Journal", icon: "edit" },
     { href: `/${locale}/faq`, label: d.nav.faq, icon: "chat" },
     { href: `/${locale}/contact`, label: d.nav.contact, icon: "mail" },
   ];
@@ -36,6 +37,7 @@ export function Header({ locale, signedIn, slug, hasOffers }: { locale: Locale; 
             </Link>
           )}
           <Link className="navlink hidden rounded-lg px-3 py-2 md:block" href={`/${locale}/area`}>{d.nav.area}</Link>
+          <Link className="navlink hidden rounded-lg px-3 py-2 md:block" href={`/${locale}/journal`}>Journal</Link>
           <Link className="navlink hidden rounded-lg px-3 py-2 md:block" href={`/${locale}/faq`}>{d.nav.faq}</Link>
           <LangSwitch locale={locale} />
           <Link href={`/${locale}/properties/${slug}#book`} className="btn ml-2 !min-h-10 !px-5 max-md:!hidden">{d.card.reserve}</Link>

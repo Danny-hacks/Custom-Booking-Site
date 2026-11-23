@@ -40,8 +40,20 @@ Guests who finished a confirmed stay see a **Leave a review** form under that bo
 
 After pulling this change run `npx prisma db push` against the production database once (it adds three optional columns to reviews).
 
+## The area guide (Ségala)
+The Area page is the guide to the Ségala and the wider Aveyron. Every place lives in `src/lib/area.ts` (English + French text, category, approximate drive time from Centrès, optional photo and official link) and gets its own page at `/area/<slug>`, listed in the sitemap. To add a place, add one entry there (and a photo, see below).
+
+**Content rules.** The text is written by us from public facts. Do not copy text or photos from the tourist offices: destinationsegala.fr reserves its content, excludes commercial use and forbids extracting its database; tourisme-aveyron.com requires written permission to reproduce texts or illustrations. To reuse their words or photos, get written permission first. The open alternative for events and points of interest is DATAtourisme (Licence Ouverte; free API key; the producer and last-update date must be credited next to each item, and every photo needs its own credit).
+
+**Drive times** were computed with OpenStreetMap routing from the centre of Centrès and rounded. Re-check them from the exact address if you want to be precise.
+
+## Journal and things to do
+- **Journal** (`/journal`): articles the owners write in Admin → Journal (English + French, cover photo, places mentioned, draft/scheduled/published). Article text is plain text with `## headings`, `- bullets`, `**bold**` and `[links](url)`; it is rendered without HTML, so nothing pasted in can run as code. Four starter articles are added once by `scripts/seed-posts.mts` (only while the Journal is empty).
+- **Things to do**: every place in `src/lib/area.ts` has activity tags (rainy day, with children, swim, walks, free, taste, history & art) that drive the filter on the Area page, plus ready-made day plans (`PLANS`). Place pages show their position with a link to OpenStreetMap and directions from the estate.
+- **After pulling this update on an existing database**: run `npx prisma db push` once (adds the Post table), then `npx tsx scripts/update-content.mts` (adds the starter articles if the Journal is empty).
+
 ## Area photos
-The Area page photos are from Wikimedia Commons (CC BY-SA / public domain). Authors and licences are in `src/lib/area-credits.json` and printed on the Area page, as the licences require.
+The Area page photos are from Wikimedia Commons (CC BY-SA / public domain). Authors and licences are in `src/lib/area-credits.json` and printed on the Area page and on each place page, as the licences require. Places without a photo show an icon.
 
 ## QA scripts (dev server running)
 - `npx tsx --env-file=.env scripts/flow-test.mts`: booking logic (holds, overlaps, refunds, iCal).

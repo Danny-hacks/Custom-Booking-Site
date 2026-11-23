@@ -249,3 +249,15 @@ html:has(dialog.menu-sheet[open]) { overflow: hidden; }
 /* light cards sitting on a dark band must not inherit the band's pale text */
 .band-dark .card, .band-dark .card :where(h1, h2, h3, h4, .serif) { color: var(--ink); }
 .band-dark .card .text-brand { color: var(--brand); }
+
+/* area map pins */
+.map-pin { cursor: pointer; outline: none; }
+.map-pin .map-dot { transition: transform 0.2s var(--ease-spring); transform-box: fill-box; transform-origin: center; }
+.map-pin:hover .map-dot, .map-pin:focus-visible .map-dot { transform: scale(1.35); fill: var(--brand-deep); }
+.map-pin:focus-visible .map-dot { stroke: var(--sun-bright); }
+.map-pin .map-label-hover { display: none; }
+.map-pin:hover .map-label-hover, .map-pin:focus-visible .map-label-hover { display: inline; }
+
+/* a dark band that ends the page sits flush against the (dark) footer; a small credit line keeps a short gap */
+#content:has(main > .band-dark:last-child) + footer { margin-top: 0; }
+#content:has(.photo-credit) + footer { margin-top: 2.5rem; }

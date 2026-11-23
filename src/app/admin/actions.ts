@@ -13,6 +13,7 @@ import { inspectFeed, type FeedReport } from "@/lib/channel/ical";
 import { diffDays, isValidISO } from "@/lib/dates";
 import { AMENITY_CATALOG } from "@/lib/amenities";
 import { view, type Photo } from "@/lib/property";
+import { POST_CATEGORIES, slugify } from "@/lib/journal";
 
 const s = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const cents = (f: FormData, k: string) => Math.round((Number(String(f.get(k) ?? "0").replace(",", ".")) || 0) * 100);
@@ -286,6 +287,62 @@ export async function deleteReview(id: string) {
   await db.review.delete({ where: { id } }).catch(() => {});
   revalidatePath("/", "layout");
   redirect("/admin/reviews");
+}
+
+/* ───────── Journal ───────── */
+/** Creates or updates a journal article. The cover is an uploaded photo, one already on the site, or the one it had before. */
+export async function savePost(id: string | null, f: FormData) {
+  await requireAdmin();
+  const titleEn = s(f, "titleEn"), bodyEn = s(f, "bodyEn");
+  const back = id ? `/admin/journal/${id}` : "/admin/journal/new";
+  if (!titleEn || !bodyEn) redirect(`${back}?err=1`);
+
+  let slug = slugify(s(f, "slug") || titleEn) || "article";
+  const taken = async (x: string) => !!(await db.post.findFirst({ where: { slug: x, ...(id ? { NOT: { id } } : {}) }, select: { id: true } }));
+  for (let n = 2; await taken(slug); n++) slug = `${slugify(s(f, "slug") || titleEn).slice(0, 70)}-${n}`;
+
+  const existing = id ? await db.post.findUnique({ where: { id } }) : null;
+  let cover = existing?.cover ?? "";
+  const file = f.get("coverFile");
+  const uploaded = file instanceof File && file.size ? await saveImage("journal", file) : null;
+  if (uploaded) cover = uploaded;
+  else if (s(f, "coverChoice") === "none") cover = "";
+  else if (s(f, "coverChoice")) cover = s(f, "coverChoice");
+
+  const when = new Date(s(f, "publishedAt"));
+  const data = {
+    slug,
+    published: f.get("published") === "on",
+    publishedAt: isNaN(when.getTime()) ? new Date() : when,
+    category: POST_CATEGORIES.some((c) => c.key === s(f, "category")) ? s(f, "category") : "guide",
+    cover,
+    coverCredit: s(f, "coverCredit"),
+    places: f.getAll("places").map(String).filter((x) => /^[a-z0-9-]+$/.test(x)).join(","),
+    titleEn,
+    titleFr: s(f, "titleFr"),
+    excerptEn: s(f, "excerptEn"),
+    excerptFr: s(f, "excerptFr"),
+    bodyEn,
+    bodyFr: String(f.get("bodyFr") ?? "").trim(),
+  };
+  if (id) await db.post.update({ where: { id }, data });
+  else await db.post.create({ data });
+  revalidatePath("/", "layout");
+  redirect("/admin/journal");
+}
+
+export async function togglePost(id: string) {
+  await requireAdmin();
+  const p = await db.post.findUnique({ where: { id } });
+  if (p) await db.post.update({ where: { id }, data: { published: !p.published } });
+  revalidatePath("/", "layout");
+}
+
+export async function deletePost(id: string) {
+  await requireAdmin();
+  await db.post.delete({ where: { id } }).catch(() => {});
+  revalidatePath("/", "layout");
+  redirect("/admin/journal");
 }
 
 /** Sends a real test message to the owner address so email settings can be checked in one click. */

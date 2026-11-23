@@ -33,5 +33,55 @@
     "author": "Krzysztof Golik",
     "license": "CC BY-SA 4.0",
     "url": "https://commons.wikimedia.org/wiki/File:Landscape_of_Aveyron_02.jpg"
+  },
+  "viaduc": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Viaduc_du_Viaur_in_Tanus_(2).jpg"
+  },
+  "bosc": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Castle_of_Le_Bosc_02.jpg"
+  },
+  "sauveterre": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Place_des_Arcades_in_Sauveterre-de-R_10.jpg"
+  },
+  "najac": {
+    "author": "Thérèse Gaigé",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Najac_et_son_ch%C3%A2teau_(Aveyron).jpg"
+  },
+  "villefranche": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Place_Notre-Dame_in_Villefranche-de-Rouergue_14.jpg"
+  },
+  "cordes": {
+    "author": "Pom'",
+    "license": "CC BY-SA 2.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Cordes-sur-Ciel,_Tarn,_France.jpg"
+  },
+  "albi": {
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Catedral_de_Santa_Cecilia,_Albi,_Francia,_2023-01-07,_DD_146.jpg"
+  },
+  "taurines": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Castle_of_Taurines_01.jpg"
+  },
+  "naucelle": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Porte_des_Anglais_in_Naucelle_01.jpg"
+  },
+  "rieupeyroux": {
+    "author": "Krzysztof Golik",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Saint_Martial_church_in_Rieupeyroux_(11).jpg"
   }
 }

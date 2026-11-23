@@ -148,7 +148,7 @@ const en = {
     title: "The area",
     lead: "Aveyron is quiet, green and generous. A few places worth the drive.",
     items: [
-      ["Conques", "Medieval pilgrim village with a Romanesque abbey and the famous Tympanum. About 25 minutes away."],
+      ["Conques", "Medieval pilgrim village with a Romanesque abbey and the famous Tympanum. About 70 minutes away, so make a day of it."],
       ["Gorges de l'Aveyron & Belcastel", "Castle, river and stone bridge in one of France's most beautiful villages."],
       ["Rodez", "Soulages Museum, the red-sandstone cathedral and Saturday markets."],
       ["Walking & cycling", "Marked trails start close to the house, including sections of the Way of St James."],
@@ -325,7 +325,7 @@ const fr: Dict = {
     title: "La région",
     lead: "L'Aveyron est calme, verte et généreuse. Quelques lieux qui valent le détour.",
     items: [
-      ["Conques", "Village médiéval de pèlerinage, abbatiale romane et son célèbre tympan. À environ 25 minutes."],
+      ["Conques", "Village médiéval de pèlerinage, abbatiale romane et son célèbre tympan. À environ 70 minutes : prévoyez la journée."],
       ["Gorges de l'Aveyron et Belcastel", "Château, rivière et pont de pierre dans l'un des plus beaux villages de France."],
       ["Rodez", "Musée Soulages, cathédrale de grès rose et marchés du samedi."],
       ["Randonnée et vélo", "Des sentiers balisés partent près de la maison, dont des tronçons du chemin de Saint-Jacques."],

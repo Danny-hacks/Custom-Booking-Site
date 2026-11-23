@@ -164,3 +164,23 @@ model Review {
   source    String   @default("airbnb") // airbnb | direct | google
   createdAt DateTime @default(now())
 }
+
+/// Journal: travel and local-life articles written by the owners (what to do, where to swim, seasonal ideas).
+model Post {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  published   Boolean  @default(false)
+  publishedAt DateTime @default(now())
+  category    String   @default("guide") // guide | season | family | food
+  cover       String   @default("") // image URL or /img/... path
+  coverCredit String   @default("") // shown under the cover when set
+  places      String   @default("") // comma-separated area place slugs mentioned in the article
+  titleEn     String
+  titleFr     String   @default("")
+  excerptEn   String   @default("")
+  excerptFr   String   @default("")
+  bodyEn      String
+  bodyFr      String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

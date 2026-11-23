@@ -6,6 +6,7 @@ import { PrismaClient } from "@prisma/client";
 import { COTTAGE_PHOTOS, PROPERTY_PHOTOS, ph } from "../src/lib/photos";
 import { HIGHLIGHTS, TAGLINE } from "../src/lib/brand";
 import { TESTIMONIALS } from "../src/lib/testimonials";
+import { STARTER_POSTS } from "../src/lib/journal-starter";
 
 const db = new PrismaClient();
 const props = await db.property.findMany();
@@ -44,5 +45,10 @@ if ((await db.review.count({ where: { NOT: { id: { startsWith: "testimonial-" } 
   }
   await db.review.deleteMany({ where: { sample: true } });
   console.log(`placeholder testimonials in place (${TESTIMONIALS.length})`);
+}
+// starter Journal articles, only while the Journal is empty
+if ((await db.post.count()) === 0) {
+  for (const p of STARTER_POSTS) await db.post.create({ data: { ...p, published: true, publishedAt: new Date(p.publishedAt) } });
+  console.log(`starter journal articles added (${STARTER_POSTS.length})`);
 }
 await db.$disconnect();

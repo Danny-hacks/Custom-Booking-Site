@@ -48,12 +48,16 @@ const again = await createHold({ ...base, from, to });
 ok(!!again.id, "cancelled dates bookable again");
 
 // 8. late cancel -> no refund per policy (arrival in 5 days)
-const lf = addDays(today(), 5);
-const late = await createHold({ ...base, from: lf, to: addDays(lf, 2) });
+// a stay starting within a week, in the first free 2-night window (the demo data may already occupy some days)
+let late: Awaited<ReturnType<typeof createHold>> | undefined;
+for (let n = 3; n <= 12 && !late; n++) {
+  try { late = await createHold({ ...base, from: addDays(today(), n), to: addDays(today(), n + 2) }); } catch { /* occupied, try the next day */ }
+}
+if (!late) throw new Error("no free window in the next 12 days for the late-cancel check");
 await db.payment.create({ data: { bookingId: late.id, amount: late.total, provider: "demo" } });
 await confirmBooking(late.ref, "pi_late");
 const lc = await cancelBooking(late.ref, { by: "guest" });
-ok(lc?.refunded === 0, "guest cancel 5 days out: no refund per policy");
+ok(lc?.refunded === 0, "guest cancel within a week of arrival: no refund per policy");
 const ac = await db.booking.create({ data: { ...{ ref: "ZZADM1", propertyId: p.id, guestName: "A", guestEmail: "a@a.a", checkIn: addDays(today(), 300), checkOut: addDays(today(), 302), nights: 2, total: 100000, status: "confirmed" } } });
 await db.payment.create({ data: { bookingId: ac.id, amount: 100000, status: "paid", provider: "demo" } });
 const adm = await cancelBooking("ZZADM1", { by: "admin", refundCents: 25000, reason: "goodwill" });

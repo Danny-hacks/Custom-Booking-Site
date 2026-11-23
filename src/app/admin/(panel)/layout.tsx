@@ -13,6 +13,7 @@ const nav = [
   ["/admin/properties", "house", "Properties"],
   ["/admin/offers", "percent", "Offers"],
   ["/admin/reviews", "star", "Reviews"],
+  ["/admin/journal", "edit", "Journal"],
   ["/admin/guests", "users", "Guests"],
   ["/admin/outbox", "bell", "Notifications"],
 ] as const;

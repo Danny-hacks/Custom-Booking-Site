@@ -17,6 +17,7 @@ export function Footer({ locale }: { locale: Locale }) {
         <nav aria-label="Footer" className="grid content-start text-[15px]">
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/offers`}>{d.offers.nav}</Link>
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/area`}>{d.nav.area}</Link>
+          <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/journal`}>Journal</Link>
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/faq`}>{d.nav.faq}</Link>
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/contact`}>{d.nav.contact}</Link>
           <Link className="inline-block py-1.5 hover:underline" href={`/${locale}/account`}>{d.nav.account}</Link>

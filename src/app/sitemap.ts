@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { siteBase } from "@/lib/site";
+import { PLACES } from "@/lib/area";
 
 /** Every public page in both languages, with hreflang alternates. Properties come from the database. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteBase();
   const props = await db.property.findMany({ where: { status: "published" }, select: { slug: true } }).catch(() => []);
-  const paths = ["", "/properties", "/offers", "/area", "/reviews", "/faq", "/contact", "/legal/terms", "/legal/privacy", ...props.map((p) => `/properties/${p.slug}`)];
+  const posts = await db.post.findMany({ where: { published: true, publishedAt: { lte: new Date() } }, select: { slug: true } }).catch(() => []);
+  const paths = ["", "/properties", "/offers", "/area", ...PLACES.map((x) => `/area/${x.slug}`), "/journal", ...posts.map((x) => `/journal/${x.slug}`), "/reviews", "/faq", "/contact", "/legal/terms", "/legal/privacy", ...props.map((p) => `/properties/${p.slug}`)];
   return paths.flatMap((p) =>
     (["en", "fr"] as const).map((l) => ({
       url: `${base}/${l}${p}`,
