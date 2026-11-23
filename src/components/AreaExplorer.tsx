@@ -54,7 +54,7 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
   return (
     <div>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:items-start lg:gap-8">
-        <div className="rounded-[28px] border border-line bg-paper/70 p-3 shadow-[0_18px_40px_-28px_rgba(58,40,26,0.45)] sm:p-4 lg:sticky lg:top-24 lg:order-2">
+        <div className="overflow-hidden rounded-[28px] border border-line bg-paper/70 p-3 shadow-[0_18px_40px_-28px_rgba(58,40,26,0.45)] sm:p-4 lg:sticky lg:top-24 lg:order-2">
       <div className="flex flex-col gap-3">
         <div role="group" aria-label={labels.filterAria} className="no-scrollbar -mx-3 flex scroll-px-3 snap-x gap-2 overflow-x-auto px-3 pb-1 sm:-mx-4 sm:px-4 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0">
           {chip("all", labels.all)}
