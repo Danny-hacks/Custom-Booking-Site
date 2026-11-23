@@ -69,7 +69,7 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
         </label>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)] lg:items-start lg:gap-8">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         <div className="lg:sticky lg:top-24 lg:order-2">
           <AreaMap
             locale={locale}
@@ -84,7 +84,7 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
         <div className="lg:order-1">
           <p className="text-sm text-ink-soft" aria-live="polite">{shown.length} {labels.shown}</p>
           {shown.length === 0 && <p className="mt-3 rounded-2xl border border-dashed border-line p-8 text-center text-ink-soft">{labels.none}</p>}
-          <ul className="mt-3 space-y-3">
+          <ul className="mt-3 space-y-2">
             {rows.map((pl, i) => (
               <li key={`${act}-${pl.slug}`} className="fade-up" style={{ animationDelay: `${Math.min(i, 10) * 45}ms` }}>
                 <Link
@@ -93,22 +93,22 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
                   onMouseLeave={() => setActive(null)}
                   onFocus={() => setActive(pl.slug)}
                   onBlur={() => setActive(null)}
-                  className={`group flex items-center gap-4 rounded-2xl border bg-paper p-3 transition-all duration-200 ${active === pl.slug ? "-translate-y-0.5 border-brand shadow-[0_14px_30px_-20px_rgba(58,40,26,0.6)]" : "border-line hover:-translate-y-0.5 hover:border-brand/60"}`}
+                  className={`group flex items-center gap-3 rounded-xl border bg-paper p-2 transition-all duration-200 ${active === pl.slug ? "-translate-y-0.5 border-brand shadow-[0_14px_30px_-20px_rgba(58,40,26,0.6)]" : "border-line hover:-translate-y-0.5 hover:border-brand/60"}`}
                 >
-                  <span className="relative grid h-[88px] w-[88px] shrink-0 place-items-center overflow-hidden rounded-xl bg-tint text-brand/60 sm:h-[96px] sm:w-[96px]">
+                  <span className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-tint text-brand/60">
                     {pl.photo ? (
                       <Image src={areaThumb(pl.photo)} alt="" width={240} height={240} unoptimized className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     ) : (
-                      <Icon name={pl.icon} size={34} weight="duotone" />
+                      <Icon name={pl.icon} size={26} weight="duotone" />
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[17px] font-semibold leading-snug">{pl.name}</span>
-                    <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span className="flex items-center gap-1 rounded-full bg-tint px-2.5 py-0.5 text-[12px] font-bold text-brand-deep"><Icon name="car" size={13} /> {pl.drive}</span>
-                      <span className="text-[12px] font-semibold uppercase tracking-wide text-brand/80">{pl.tag}</span>
+                    <span className="block text-[15px] font-semibold leading-snug">{pl.name}</span>
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <span className="flex items-center gap-1 rounded-full bg-tint px-2 py-0.5 text-[11px] font-bold text-brand-deep"><Icon name="car" size={13} /> {pl.drive}</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-brand/80">{pl.tag}</span>
                     </span>
-                    <span className="mt-1.5 line-clamp-2 block text-[14px] text-ink-soft">{pl.summary}</span>
+                    <span className="mt-1 line-clamp-1 block text-[13px] text-ink-soft">{pl.summary}</span>
                   </span>
                 </Link>
               </li>
