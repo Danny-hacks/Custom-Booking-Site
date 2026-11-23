@@ -55,12 +55,14 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
 
   return (
     <div>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label={labels.filterAria} className="no-scrollbar -mx-5 flex scroll-px-5 snap-x gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-1 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <div className="rounded-[28px] border border-line bg-paper/70 p-3 shadow-[0_18px_40px_-28px_rgba(58,40,26,0.45)] sm:p-4 lg:sticky lg:top-24 lg:order-2">
+      <div className="flex flex-col gap-3">
+        <div role="group" aria-label={labels.filterAria} className="no-scrollbar -mx-3 flex scroll-px-3 snap-x gap-2 overflow-x-auto px-3 pb-1 sm:-mx-4 sm:px-4 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0">
           {chip("all", labels.all)}
           {activities.map((a) => chip(a.key, a.label))}
         </div>
-        <label className="block lg:w-56 lg:shrink-0">
+        <label className="block">
           <span className="sr-only">{labels.jump}</span>
           <select className="field" defaultValue="" aria-label={labels.jump} onChange={(e) => e.target.value && router.push(`/${locale}/area/${e.target.value}`)}>
             <option value="" disabled>{labels.jumpHint}</option>
@@ -69,8 +71,7 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
         </label>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:items-start lg:gap-8">
-        <div className="lg:sticky lg:top-24 lg:order-2">
+          <div className="mt-3">
           <AreaMap
             locale={locale}
             estate={estate}
@@ -79,6 +80,7 @@ export function AreaExplorer({ locale, places, activities, estate, labels }: Pro
             onActive={setActive}
             labels={{ near: labels.near, wide: labels.wide, km: labels.km, aria: labels.mapAria, credit: labels.credit }}
           />
+          </div>
         </div>
 
         <div className="lg:order-1">
