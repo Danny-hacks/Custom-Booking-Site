@@ -22,7 +22,8 @@ export default async function EditProperty({ params, searchParams }: PageProps<"
           <Link href="/admin/sync" className="btn-ghost"><Icon name="sync" size={16} /> Calendar sync</Link>
         </div>
       </div>
-      {sp.saved && <p role="status" className="mb-4 rounded-lg bg-[#e6ecd9] px-4 py-2 text-leaf">Saved.</p>}
+      {sp.saved && <p role="status" className="mb-4 rounded-lg bg-[#e6ecd9] px-4 py-2 text-leaf">Saved.{sp.rates === "sent" && " New prices sent to Beds24 (Airbnb and Booking.com follow within minutes)."}</p>}
+      {sp.rates === "failed" && <p role="alert" className="mb-4 rounded-lg bg-[#fdecea] px-4 py-2 text-danger">Saved here, but the prices could not be sent to Beds24. See Calendar sync for the reason; you have been emailed.</p>}
       {row.lastSyncNote && <p className="mb-4 text-sm text-ink-soft">Last sync: {row.lastSyncNote}</p>}
       <PropertyForm p={p} />
     </div>

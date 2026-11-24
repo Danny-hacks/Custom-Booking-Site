@@ -1,5 +1,6 @@
 // Tests OUR side of the Beds24 connection against a pretend Beds24 server that behaves as its public docs describe
-// (24h access tokens renewed from a refresh token, paged GET /bookings, POST /bookings needing a price, per-item success).
+// (24h access tokens renewed from a refresh token, paged GET /bookings, POST /bookings needing a price, per-item success,
+// POST /inventory/rooms/calendar for nightly prices and minimum stay).
 // It cannot prove how the real Beds24 behaves: that needs a real account (see README "Instant sync with Beds24").
 // Run: npx tsx --env-file=.env scripts/beds24-test.mts
 import http from "node:http";
@@ -8,7 +9,8 @@ import { db } from "../src/lib/db";
 import { createHold, confirmBooking, cancelBooking } from "../src/lib/booking";
 import { isAvailable } from "../src/lib/availability";
 import { beds24Channel } from "../src/lib/channel/beds24";
-import { syncIfStale } from "../src/lib/channel";
+import { syncIfStale, pushSafely, pushRatesSafely } from "../src/lib/channel";
+import { GET as cron } from "../src/app/api/cron/sync/route";
 import { addDays, today } from "../src/lib/dates";
 import { POST as webhook } from "../src/app/api/webhooks/beds24/route";
 
@@ -19,7 +21,9 @@ type B = { id: number; roomId: number; status: string; arrival: string; departur
 let bookings: B[] = [];
 let nextId = 1000, tokenSeq = 0, tokenCalls = 0, getCalls = 0;
 let validToken = "";
-let failPost = false, failGet = false;
+let failPost = false, failGet = false, failCal = false, calPosts = 0;
+type Day = { from: string; to: string; price1?: number; minStay?: number };
+const calendar = new Map<string, Day>(); // "room|date" -> values Beds24 holds
 const sent: B[] = [];
 const server = http.createServer((req, res) => {
   const url = new URL(req.url!, "http://x");
@@ -47,6 +51,24 @@ const server = http.createServer((req, res) => {
         const b = { id: nextId++, ...it } as B; bookings.push(b); sent.push(b); return { success: true, new: { id: b.id } };
       });
       json(200, out);
+    });
+    return;
+  }
+  if (url.pathname === "/inventory/rooms/calendar" && req.method === "POST") {
+    let body = ""; req.on("data", (c) => (body += c)); req.on("end", () => {
+      calPosts++;
+      if (failCal) return json(500, { error: "boom" });
+      const items = JSON.parse(body) as { roomId?: number; calendar?: Day[] }[];
+      if (!Array.isArray(items)) return json(400, { error: "array expected" });
+      json(201, items.map((it) => {
+        if (!it.roomId || !Array.isArray(it.calendar)) return { success: false, errors: [{ field: "roomId", message: "required" }] };
+        for (const c of it.calendar) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(c.from) || !/^\d{4}-\d{2}-\d{2}$/.test(c.to) || c.to < c.from) return { success: false, errors: [{ field: "from", message: "bad range" }] };
+          if (c.minStay !== undefined && (c.minStay < 1 || c.minStay > 365)) return { success: false, errors: [{ field: "minStay", message: "1-365" }] };
+          calendar.set(`${it.roomId}|${c.from}`, c);
+        }
+        return { success: true, modified: { roomId: it.roomId } };
+      }));
     });
     return;
   }
@@ -149,8 +171,53 @@ try {
   calls = getCalls;
   await syncIfStale(prop.id, 30);
   ok(getCalls > calls && !(await isAvailable(prop.id, d(200), d(203))), "a stale sync is refreshed when a guest starts paying, catching a booking made seconds ago");
+
+  // 9. prices: nightly prices with seasons and markup reach Beds24 for a full year
+  const md = (n: number) => d(n).slice(5);
+  await db.property.update({ where: { id: prop.id }, data: { baseNight: 38000, minNights: 3, channelMarkup: 10, seasons: JSON.stringify([{ name: "Test peak", from: md(20), to: md(22), night: 50000 }]) } });
+  let res = await pushRatesSafely(await reload());
+  const days = [...calendar.keys()].filter((k) => k.startsWith("777|"));
+  ok(res.ok && days.length === 365, `a year of nights is sent to the Beds24 room (${days.length})`);
+  ok(calendar.get(`777|${d(0)}`)?.price1 === 418, `base price plus 10% markup: €380 → €${calendar.get(`777|${d(0)}`)?.price1}`);
+  ok(calendar.get(`777|${d(21)}`)?.price1 === 550 && calendar.get(`777|${d(23)}`)?.price1 === 418, "a seasonal night gets the season's price (+ markup), the night after returns to base");
+  ok([...calendar.values()].every((c) => c.minStay === 3 && c.from === c.to), "every night carries the minimum stay, one night per entry (no doubt about range ends)");
+  const p9 = await reload();
+  ok(!!p9.ratesPushedAt && /365 nights/.test(p9.ratesNote ?? ""), `the result is recorded for the admin: "${p9.ratesNote}"`);
+
+  // 10. a failing price push is recorded, the owner is told, and the last good time is kept
+  failCal = true;
+  res = await pushRatesSafely(p9);
+  failCal = false;
+  const p10 = await reload();
+  ok(!res.ok && /failed/.test(p10.ratesNote ?? "") && p10.ratesPushedAt?.getTime() === p9.ratesPushedAt?.getTime(), "a Beds24 error is recorded without pretending it worked");
+  ok((await db.notification.findMany()).some((n) => n.subject.includes("prices for Beds24 test")), "and the owner gets an ACTION NEEDED email");
+  const noRoom = await pushRatesSafely({ ...p10, beds24Id: null });
+  ok(!noRoom.ok && calPosts > 0, "without a Beds24 room ID nothing is sent");
+
+  // 11. owner blocks made in our admin close the dates in Beds24 (and so on Airbnb), and reopen when deleted
+  const block = await db.booking.create({ include: { property: true }, data: { ref: "BLTEST" + Date.now().toString(36).toUpperCase(), propertyId: prop.id, guestName: "Owner block", guestEmail: "owner@manual.local", checkIn: d(250), checkOut: d(253), nights: 3, adults: 1, source: "block", status: "confirmed", total: 0 } });
+  refs.push(block.ref);
+  await pushSafely("push", block);
+  const sb = bookings.find((x) => x.apiReference === block.ref);
+  ok(sb?.status === "black" && sb.price === 0 && sb.arrival === d(250), "an owner block is sent as a Beds24 blackout (no guest, no price)");
+  const n0 = await db.booking.count({ where: { propertyId: prop.id } });
+  await beds24Channel.pull(await reload());
+  ok((await db.booking.count({ where: { propertyId: prop.id } })) === n0, "the block coming back from Beds24 is not imported twice");
+  await pushSafely("cancel", block);
+  ok(bookings.find((x) => x.apiReference === block.ref)?.status === "cancelled", "deleting the block reopens the dates in Beds24");
+
+  // 12. the scheduled job sends prices once a day, not every run
+  process.env.CRON_SECRET = "cron-test";
+  await db.property.update({ where: { id: prop.id }, data: { status: "published", ratesPushedAt: new Date(Date.now() - 25 * 3600_000) } });
+  let before12 = calPosts;
+  const out = (await (await cron(new Request("http://x/api/cron/sync?secret=cron-test"))).json()) as { slug: string; rates?: string }[];
+  ok(calPosts > before12 && !!out.find((o) => o.slug === prop.slug)?.rates, "the nightly job re-sends prices when the last send is over 20 hours old");
+  before12 = calPosts;
+  const out2 = (await (await cron(new Request("http://x/api/cron/sync?secret=cron-test"))).json()) as { slug: string; rates?: string }[];
+  ok(!out2.find((o) => o.slug === prop.slug)?.rates, "and does not re-send on the next run the same day");
 } finally {
   const all = await db.notification.findMany();
+  await db.notification.deleteMany({ where: { subject: { contains: "prices for Beds24 test" } } });
   await db.notification.deleteMany({ where: { id: { in: all.filter((n) => refs.some((r) => n.subject.includes(r) || n.body.includes(r))).map((n) => n.id) } } });
   await db.refund.deleteMany({ where: { booking: { propertyId: prop.id } } });
   await db.payment.deleteMany({ where: { booking: { propertyId: prop.id } } });

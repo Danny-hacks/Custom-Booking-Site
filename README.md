@@ -110,10 +110,13 @@ Airbnb has no public booking API: instant connections go through approved partne
 ## Instant sync with Beds24
 With Beds24 (a certified Airbnb channel manager) a direct booking closes the dates on Airbnb within minutes and an Airbnb booking reaches us in about a minute through a webhook.
 1. The client creates a Beds24 account and connects the Airbnb listing inside Beds24.
-2. In Beds24: Settings → Marketplace → API → create an invite code with read+write access to bookings (and personal data), and exchange it for a **refresh token** (Beds24 access tokens last 24 h; the site renews them itself from the refresh token).
+2. In Beds24: Settings → Marketplace → API → create an invite code with read+write access to bookings, bookings-personal and **inventory** (inventory is needed to send prices; scopes cannot be added to an existing code later), and exchange it for a **refresh token** (Beds24 access tokens last 24 h; the site renews them itself from the refresh token).
 3. Site settings: `CHANNEL_PROVIDER=beds24`, `BEDS24_REFRESH_TOKEN`, `BEDS24_WEBHOOK_SECRET` (a long random string); Admin → Calendar sync → Advanced: the Beds24 room id.
 4. In Beds24: Settings → Properties → Access → Booking webhooks (version 2, POST): `https://YOUR-SITE/api/webhooks/beds24?secret=BEDS24_WEBHOOK_SECRET&property=your-property-slug`.
-5. Run `npx tsx --env-file=.env scripts/beds24-test.mts` any time: it tests our side against a pretend Beds24 (token renewal, paging, price, errors, webhook, no double imports).
+5. In Beds24, make sure the room's first daily price (price1) is enabled for Airbnb and Booking.com (Prices → Daily price rules), since that is the price the site writes.
+6. Run `npx tsx --env-file=.env scripts/beds24-test.mts` any time: it tests our side against a pretend Beds24 (token renewal, paging, price, errors, webhook, no double imports, price push, owner blocks, nightly job).
+
+**Prices from the admin.** In Beds24 mode, saving a property sends the next 365 nights (base price, seasons, minimum stay) to Beds24 with `POST /inventory/rooms/calendar`, one entry per night; Beds24 passes them to Airbnb and Booking.com. The property's "Airbnb / Booking.com markup (%)" raises those prices to cover the platforms' commission (Airbnb's host-only fee for software-connected listings is about 15.5%); offers stay direct-only. The scheduled job re-sends once a day so the window keeps moving, and Admin → Calendar sync has a "Send prices now" button and shows the last result. A failure is recorded there and emails the owner. Owner blocks and manual bookings made in Admin → Calendar are sent to Beds24 too (blocks as blackouts), so the owner never needs to touch the Airbnb calendar.
 
 **Not yet verified:** the connection has never talked to a real Beds24 account (Beds24 has no sandbox), and Beds24's pages do not say how fast a booking sent through their API reaches Airbnb. First real run: use dates far in the future, watch Admin → Calendar sync and the Airbnb calendar, and cancel the test booking afterwards. If a send ever fails, the guest's booking still stands and the owner gets an "ACTION NEEDED: block these dates on Airbnb" email.
 

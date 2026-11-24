@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireAdmin, destroySession } from "@/lib/session";
 import { cancelBooking, refundOnly } from "@/lib/booking";
-import { channel } from "@/lib/channel";
+import { channel, isBeds24, pushRatesSafely, pushSafely } from "@/lib/channel";
 import { saveImage } from "@/lib/storage";
 import { sendMail } from "@/lib/mail";
 import { ownerEmail } from "@/lib/notify";
@@ -51,7 +51,8 @@ export async function adminManualBooking(f: FormData) {
   });
   if (clash) redirect("/admin/calendar?err=clash");
   const isBlock = s(f, "kind") === "block";
-  await db.booking.create({
+  const created = await db.booking.create({
+    include: { property: true },
     data: {
       ref: (isBlock ? "BL" : "MN") + Math.random().toString(36).slice(2, 7).toUpperCase(),
       propertyId,
@@ -67,13 +68,16 @@ export async function adminManualBooking(f: FormData) {
       notes: s(f, "notes") || null,
     },
   });
+  if (isBeds24()) await pushSafely("push", created);
   revalidatePath("/admin", "layout");
   redirect("/admin/calendar");
 }
 
 export async function adminDeleteBlock(ref: string) {
   await requireAdmin();
+  const b = await db.booking.findFirst({ where: { ref, source: { in: ["block", "manual"] }, status: "confirmed" }, include: { property: true } });
   await db.booking.updateMany({ where: { ref, source: { in: ["block", "manual"] } }, data: { status: "cancelled", cancelledAt: new Date() } });
+  if (b && isBeds24()) await pushSafely("cancel", b);
   revalidatePath("/admin", "layout");
   redirect("/admin/calendar");
 }
@@ -96,6 +100,15 @@ export async function saveSyncSettings(propertyId: string, f: FormData) {
   if (url) await channel().pull(p);
   revalidatePath("/admin", "layout");
   redirect("/admin/sync?saved=1");
+}
+
+/** "Send prices now" on the Calendar sync page. */
+export async function pushRatesNow(propertyId: string) {
+  await requireAdmin();
+  const p = await db.property.findUnique({ where: { id: propertyId } });
+  const res = p ? await pushRatesSafely(p) : { ok: false };
+  revalidatePath("/admin", "layout");
+  redirect(`/admin/sync?rates=${res.ok ? "sent" : "failed"}`);
 }
 
 export type TestState = { ran?: boolean; report?: FeedReport };
@@ -171,6 +184,7 @@ export async function saveProperty(id: string | null, f: FormData) {
     maxGuests: int(f, "maxGuests", 2), bedrooms: int(f, "bedrooms", 1), beds: int(f, "beds", 1), bathrooms: int(f, "bathrooms", 1),
     baseNight: cents(f, "baseNight"), cleaningFee: cents(f, "cleaningFee"), touristTax: cents(f, "touristTax"),
     minNights: int(f, "minNights", 1),
+    channelMarkup: Math.min(50, Math.max(0, int(f, "channelMarkup", 0))),
     checkInTime: s(f, "checkInTime") || "16:00", checkOutTime: s(f, "checkOutTime") || "10:00",
     content: JSON.stringify({ en: mk("en"), fr: mk("fr") }),
     photos: JSON.stringify(photos),
@@ -182,8 +196,10 @@ export async function saveProperty(id: string | null, f: FormData) {
   const saved = id
     ? await db.property.update({ where: { id }, data })
     : await db.property.create({ data });
+  // Airbnb and Booking.com follow the new prices straight away (Beds24 mode only; does nothing otherwise)
+  const sent = isBeds24() && saved.beds24Id ? await pushRatesSafely(saved) : null;
   revalidatePath("/", "layout");
-  redirect(`/admin/properties/${saved.id}?saved=1`);
+  redirect(`/admin/properties/${saved.id}?saved=1${sent ? (sent.ok ? "&rates=sent" : "&rates=failed") : ""}`);
 }
 
 

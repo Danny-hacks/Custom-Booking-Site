@@ -2,7 +2,9 @@ import "server-only";
 import { createHash } from "node:crypto";
 import type { Property } from "@prisma/client";
 import { db } from "../db";
-import { today } from "../dates";
+import { addDays, today } from "../dates";
+import { nightPrice } from "../pricing";
+import type { Season } from "../property";
 import type { Channel, PullOptions } from "./index";
 
 /**
@@ -61,6 +63,23 @@ function assertWritten(result: unknown) {
   if (bad) throw new Error(`Beds24 refused the change: ${JSON.stringify((bad as { errors?: unknown }).errors ?? bad).slice(0, 200)}`);
 }
 
+/** How far ahead prices are sent. Airbnb and Booking.com show about a year; the nightly job rolls the window forward. */
+export const RATE_DAYS = 365;
+
+/**
+ * The prices and minimum stay Beds24 should show for each night, worked out exactly as this site prices a stay
+ * (base price, seasons) plus the channel markup. One entry per night, so there is no doubt about whether a range
+ * end date is included. Offers stay direct-only on purpose: they are a reason to book on our site.
+ */
+export function rateCalendar(p: Pick<Property, "baseNight" | "seasons" | "minNights" | "channelMarkup">, start = today(), days = RATE_DAYS) {
+  const seasons = JSON.parse(p.seasons || "[]") as Season[];
+  const factor = 1 + Math.max(0, p.channelMarkup) / 100;
+  return Array.from({ length: days }, (_, i) => {
+    const date = addDays(start, i);
+    return { from: date, to: date, price1: Math.round((nightPrice(date, { baseNight: p.baseNight, seasons }) * factor) / 100), minStay: Math.max(1, p.minNights) };
+  });
+}
+
 const hashRef = (uid: string) => "B2" + createHash("sha1").update(uid).digest("hex").slice(0, 8).toUpperCase();
 
 type B24Booking = {
@@ -80,7 +99,7 @@ export const beds24Channel: Channel = {
         body: JSON.stringify([
           {
             roomId: Number(b.property.beds24Id),
-            status: "confirmed",
+            status: b.source === "block" ? "black" : "confirmed", // an owner block closes the dates without a guest
             arrival: b.checkIn,
             departure: b.checkOut,
             numAdult: b.adults,
@@ -88,7 +107,7 @@ export const beds24Channel: Channel = {
             firstName: first ?? "",
             lastName: rest.join(" "),
             email: b.guestEmail,
-            price: b.total / 100, // API-created bookings are not priced for us
+            price: b.source === "block" ? 0 : b.total / 100, // API-created bookings are not priced for us; a block sells nothing
             apiReference: b.ref, // lets us recognise our own bookings coming back
           },
         ]),
@@ -102,6 +121,14 @@ export const beds24Channel: Channel = {
     const id = found?.data?.[0]?.id;
     if (!id) throw new Error(`booking ${b.ref} was not found in Beds24, so it could not be cancelled there`);
     assertWritten(await api("/bookings", { method: "POST", body: JSON.stringify([{ id, status: "cancelled" }]) }));
+  },
+
+  async pushRates(property) {
+    if (!property.beds24Id) return "No Beds24 room id set";
+    const calendar = rateCalendar(property);
+    assertWritten(await api("/inventory/rooms/calendar", { method: "POST", body: JSON.stringify([{ roomId: Number(property.beds24Id), calendar }]) }, 30000));
+    const prices = calendar.map((c) => c.price1);
+    return `Sent ${calendar.length} nights (€${Math.min(...prices)}–€${Math.max(...prices)} a night${property.channelMarkup ? `, including +${property.channelMarkup}%` : ""}, minimum stay ${calendar[0].minStay})`;
   },
 
   async pull(property: Property, opts?: PullOptions): Promise<{ imported: number; cancelled: number; note: string }> {

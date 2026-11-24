@@ -5,7 +5,8 @@ import { fmtDate, today } from "@/lib/dates";
 import { Icon } from "@/components/Icon";
 import { SyncPanel } from "@/components/admin/SyncPanel";
 import { CopyField } from "@/components/admin/CopyField";
-import { saveSyncSettings, syncNow, testFeed, connectDemoFeed } from "../../actions";
+import { saveSyncSettings, syncNow, testFeed, connectDemoFeed, pushRatesNow } from "../../actions";
+import { RATE_DAYS } from "@/lib/channel/beds24";
 import { isBeds24 } from "@/lib/channel";
 
 export const metadata = { title: "Calendar sync" };
@@ -55,6 +56,8 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
       <p className="mt-1 text-ink-soft">Keeps Airbnb and this website from selling the same dates twice. Dates booked on one show up as booked on the other.</p>
 
       {sp.saved && <p role="status" className="mt-5 rounded-xl bg-[#dff3e8] p-3 text-leaf">Saved. The first sync has run, see the result below.</p>}
+      {sp.rates === "sent" && <p role="status" className="mt-5 rounded-xl bg-[#dff3e8] p-3 text-leaf">Prices sent to Beds24.</p>}
+      {sp.rates === "failed" && <p role="alert" className="mt-5 rounded-xl bg-[#fdecea] p-3 text-danger">Prices could not be sent. The reason is shown under the property below.</p>}
       {sp.synced && <p role="status" className="mt-5 rounded-xl bg-[#dff3e8] p-3 text-leaf">Sync finished.</p>}
       {sp.err && <p role="alert" className="mt-5 rounded-xl bg-[#fdecea] p-3 text-danger">That does not look like a web link. It should start with https://</p>}
 
@@ -79,7 +82,8 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
             <tbody className="divide-y divide-line align-top">
               <tr><td className="py-3 pr-3 font-semibold">Airbnb booking → this site</td><td className="py-3 pr-3">Checked the moment a guest starts paying, and every few minutes by the scheduled job</td><td className="py-3">About a minute (Beds24 tells us)</td></tr>
               <tr><td className="py-3 pr-3 font-semibold">Our booking → Airbnb</td><td className="py-3 pr-3"><strong>Hours.</strong> Airbnb decides when to re-read our link and we cannot hurry it. You get an email asking you to block the dates on Airbnb by hand.</td><td className="py-3">Within minutes (Beds24 closes the dates on Airbnb)</td></tr>
-              <tr><td className="py-3 pr-3 font-semibold">Cost</td><td className="py-3 pr-3">Free</td><td className="py-3">A Beds24 subscription (check their current price)</td></tr>
+              <tr><td className="py-3 pr-3 font-semibold">Cost</td><td className="py-3 pr-3">Free</td><td className="py-3">About €19 a month for this estate on Airbnb and Booking.com (Beds24, no commission)</td></tr>
+              <tr><td className="py-3 pr-3 font-semibold">Prices on Airbnb / Booking.com</td><td className="py-3 pr-3">Set by hand on each platform</td><td className="py-3">Sent from this admin when you save prices, and refreshed every night</td></tr>
             </tbody>
           </table>
         </div>
@@ -88,7 +92,7 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
             <summary className="cursor-pointer font-semibold">I want instant sync: what do I need?</summary>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-[15px] text-ink-soft">
               <li>A <strong className="text-ink">Beds24</strong> account, with the Airbnb listing connected inside Beds24 (their guided Airbnb connection; Airbnb only allows instant links through approved partners like Beds24).</li>
-              <li>In Beds24: <strong className="text-ink">Settings → Marketplace → API</strong>, create an invite code with read and write access to bookings, then exchange it for a <em>refresh token</em>.</li>
+              <li>In Beds24: <strong className="text-ink">Settings → Marketplace → API</strong>, create an invite code with read and write access to <strong className="text-ink">bookings</strong>, <strong className="text-ink">bookings-personal</strong> and <strong className="text-ink">inventory</strong> (inventory lets the site send prices), then exchange it for a <em>refresh token</em>.</li>
               <li>In the site settings (Vercel): set <code>CHANNEL_PROVIDER=beds24</code> and <code>BEDS24_REFRESH_TOKEN</code>, then enter the Beds24 room ID under “Advanced” in step 1 below.</li>
               <li>In Beds24: <strong className="text-ink">Settings → Properties → Access → Booking webhooks</strong> (version 2), and paste the address below.</li>
             </ol>
@@ -146,6 +150,21 @@ export default async function SyncPage({ searchParams }: PageProps<"/admin/sync"
                 )}
               </div>
             </div>
+
+            {beds24 && (
+              <div className="rounded-2xl border border-line bg-paper p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h3 className="text-lg">Prices on Airbnb and Booking.com</h3>
+                  <form action={pushRatesNow.bind(null, p.id)}><button className="btn-ghost !min-h-10" disabled={!p.beds24Id}><Icon name="sync" size={16} /> Send prices now</button></form>
+                </div>
+                <p className="mt-2 text-[15px] text-ink-soft">
+                  The next {RATE_DAYS} nights, from your prices and seasons{p.channelMarkup ? <> plus <strong className="text-ink">{p.channelMarkup}%</strong></> : null}, with a {p.minNights}-night minimum. Sent when you save the property and every night. Change prices in <Link href={`/admin/properties/${p.id}`} className="font-semibold text-brand underline">the property</Link>, not on Airbnb.
+                </p>
+                <p className={`mt-3 rounded-xl p-3 text-sm ${p.ratesNote?.startsWith("Sending prices failed") ? "bg-[#fdecea] text-danger" : "bg-tint"}`}>
+                  {p.ratesNote ? <>{p.ratesNote}{p.ratesPushedAt && !p.ratesNote.startsWith("Sending prices failed") ? ` · ${ago(p.ratesPushedAt)}` : ""}</> : p.beds24Id ? "Not sent yet." : "Enter the Beds24 room ID above first."}
+                </p>
+              </div>
+            )}
 
             <div className="rounded-2xl border border-line bg-paper p-5">
               <h3 className="flex items-center gap-2 text-lg"><span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-sm text-white">2</span> Send our bookings to Airbnb</h3>

@@ -19,6 +19,8 @@ export interface Channel {
   pushBooking(b: Booking & { property: Property }): Promise<void>;
   cancelBooking(b: Booking & { property: Property }): Promise<void>;
   pull(property: Property, opts?: PullOptions): Promise<SyncResult>;
+  /** Sends nightly prices and minimum stay to the channel manager. Only Beds24 can; calendar links carry no prices. */
+  pushRates?(property: Property): Promise<string>;
 }
 
 export const isBeds24 = () => process.env.CHANNEL_PROVIDER === "beds24";
@@ -60,5 +62,30 @@ export async function pushSafely(kind: "push" | "cancel", b: Booking & { propert
           ? "Block these dates on Airbnb by hand right now so nobody else can book them, then check Admin → Calendar sync."
           : "Re-open these dates on Airbnb by hand, then check Admin → Calendar sync."),
     );
+  }
+}
+
+/**
+ * Sends this property's prices to Beds24, which passes them on to Airbnb and Booking.com. Called when the owner saves
+ * prices, from the "Send prices now" button, and once a day by the scheduled job (to keep a full year ahead).
+ * Never throws: the result is stored on the property and shown on the Calendar sync page; a failure also emails the owner.
+ */
+export async function pushRatesSafely(p: Property): Promise<{ ok: boolean; note: string }> {
+  const ch = channel();
+  if (!ch.pushRates || !p.beds24Id) return { ok: false, note: "Prices are only sent in Beds24 mode, once the Beds24 room ID is set" };
+  try {
+    const note = await ch.pushRates(p);
+    await db.property.update({ where: { id: p.id }, data: { ratesPushedAt: new Date(), ratesNote: note } });
+    return { ok: true, note };
+  } catch (e) {
+    const note = `Sending prices failed: ${(e as Error).message}`;
+    await db.property.update({ where: { id: p.id }, data: { ratesNote: note } });
+    await notify(
+      "owner",
+      ownerEmail(),
+      `ACTION NEEDED: prices for ${p.name} were not sent to Beds24`,
+      `${note}\n\nAirbnb and Booking.com keep the previous prices until this works. Open Admin → Calendar sync and press "Send prices now".`,
+    );
+    return { ok: false, note };
   }
 }

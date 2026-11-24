@@ -57,7 +57,9 @@ export function PropertyForm({ p }: { p: PropertyView | null }) {
           <Field label="Cleaning fee"><input name="cleaningFee" inputMode="decimal" defaultValue={v(p?.cleaningFee, "0")} className="field" /></Field>
           <Field label="Tourist tax / adult / night"><input name="touristTax" inputMode="decimal" defaultValue={v(p?.touristTax, "0")} className="field" /></Field>
           <Field label="Minimum nights"><input name="minNights" type="number" min={1} defaultValue={p?.minNights ?? 2} className="field" /></Field>
+          <Field label="Airbnb / Booking.com markup (%)"><input name="channelMarkup" type="number" min={0} max={50} defaultValue={p?.channelMarkup ?? 0} className="field" /></Field>
         </div>
+        <p className="mt-2 text-sm text-ink-soft">With Beds24 connected, saving sends these prices to Airbnb and Booking.com for the next 365 nights, raised by the markup. The markup covers the platforms’ commission (Airbnb keeps about 15.5% when prices come from software), so direct guests on this site pay less. Offers stay on this site only.</p>
         <h3 className="mt-6 text-base font-semibold">Seasonal rates (optional, dates as MM-DD)</h3>
         <div className="mt-3 space-y-3">
           {seasons.map((s, i) => (

@@ -45,6 +45,9 @@ model Property {
   icalImportUrl String? // Airbnb "export calendar" URL
   icalToken     String    @default(cuid())
   beds24Id      String?
+  channelMarkup Int       @default(0) // % added to prices sent to Beds24 (covers Airbnb / Booking.com commission)
+  ratesPushedAt DateTime?
+  ratesNote     String?
   lastSyncAt    DateTime?
   lastSyncNote  String?
   createdAt     DateTime  @default(now())
